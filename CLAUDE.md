@@ -58,11 +58,13 @@ Alle Farben, Spacing, Typo, Shadows aus theme.ts importieren.
 8. **Settings** — Sprache, Notifications, Responsible Gaming, Logout
 
 ## Spezial-Momente (must-have Animationen)
-- **Big Win:** goldene Partikel-Explosion + Konfetti + Sound
 - **Login Success:** BETinas Avatar nickt, persönliche Begrüßung fliegt ein
-- **Erster Win:** Screen-füllende Celebration
 - **VIP Tier Up:** Cinematic Premium-Moment
+- **Birthday:** Konfetti + Geschenk-Moment
 - **Button Press:** kurzer Partikel-Burst in Neon Grün
+
+**Entschieden (2026-07-06):** KEIN "Big Win"/Win-Celebration-Screen — Win/Loss-Messaging
+bleibt komplett aus der App (App-Store-Sicherheit: AI Companion, keine Gambling-App).
 
 ## Projektstruktur
 ```
@@ -102,7 +104,7 @@ betina-app/
 - TypeScript strict — keine `any` ohne Kommentar
 - Alle Farben aus `theme` importieren
 - Animationen mit Reanimated 3 (`useSharedValue`, `useAnimatedStyle`)
-- Lottie für komplexe Animationen (Big Win, Splash)
+- Lottie für komplexe Animationen (Splash, Celebrations)
 - Haptics bei wichtigen Aktionen (`expo-haptics`)
 - Loading States immer zeigen
 - Error States elegant designen (BETina-Stil, kein Standard-Error)

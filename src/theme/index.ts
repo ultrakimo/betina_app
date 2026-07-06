@@ -13,7 +13,7 @@ export const Colors = {
   primaryDim: '#8FBF00',   // Gedämpftes Grün für Hover/Pressed
   accent: '#6B21A8',       // Deep Purple — Akzente, Glows
   accentLight: '#9333EA',  // Helleres Lila
-  gold: '#FFD700',         // VIP, Big Win, Premium
+  gold: '#FFD700',         // VIP, Premium
   goldDim: '#B8A000',      // Gedämpftes Gold
 
   // Text
@@ -37,6 +37,14 @@ export const Colors = {
   // Glassmorphism
   glass: 'rgba(255,255,255,0.05)',
   glassBorder: 'rgba(255,255,255,0.08)',
+} as const;
+
+// Font families (Space Grotesk, loaded in app/_layout.tsx)
+export const Fonts = {
+  regular: 'SpaceGrotesk_400Regular',
+  medium: 'SpaceGrotesk_500Medium',
+  semibold: 'SpaceGrotesk_600SemiBold',
+  bold: 'SpaceGrotesk_700Bold',
 } as const;
 
 export const Typography = {
@@ -135,7 +143,6 @@ export const Animation = {
   particles: {
     idle: 20,
     buttonPress: 8,
-    bigWin: 120,
     celebration: 80,
   },
 } as const;
@@ -159,6 +166,7 @@ export const glowButton = {
 
 export default {
   Colors,
+  Fonts,
   Typography,
   Spacing,
   BorderRadius,
