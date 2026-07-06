@@ -1,0 +1,123 @@
+# BETina App — Claude Code Briefing
+
+## Was ist BETina?
+BETina ist eine persönliche KI-Begleiterin für GeniusBet-Spieler.
+**KEINE Gambling-App** — AI Companion / Entertainment App (wichtig für App Store).
+Kein echtes Geld wird in der App bewegt. Bets laufen auf der GeniusBet Website.
+
+## Tech Stack
+- **Framework:** Expo (React Native) — SDK 52+
+- **Navigation:** Expo Router (file-based)
+- **Auth:** Supabase (Phone/OTP)
+- **Database:** Supabase
+- **AI/Chat:** Claude API (claude-sonnet-4-5)
+- **Animations:** React Native Reanimated 3 + Lottie
+- **Icons:** Expo Vector Icons / Lucide React Native
+- **Language:** TypeScript (strict)
+
+## Design Prinzipien
+- **Vibe:** Casino-Game-Feeling — alles fühlt sich lebendig an
+- **Tiefe:** Glassmorphism-Cards, Parallax, leichte 3D-Effekte
+- **Hintergrund:** Tiefschwarz/Deep Navy mit animierten Goldpartikeln (dauerhaft)
+- BETinas Avatar ist IMMER präsent — sie lebt in der App
+- Jede Interaktion hat Feedback (Partikel, Glow, Haptics)
+- Zahlen und Stats zählen animiert hoch (nie statisch)
+
+## Design System → siehe src/theme/index.ts
+Alle Farben, Spacing, Typo, Shadows aus theme.ts importieren.
+**NIEMALS** hardcoded Farbwerte im Code.
+
+## Farbpalette
+- Neon Grün (Primary): #BFFF00
+- Deep Purple (Accent): #6B21A8
+- Gold (VIP/Win): #FFD700
+- Near-Black (Background): #0A0A0F
+- Dark Surface: #12121A
+- Card Surface: #1A1A2E
+- Text Primary: #F0F0F0
+- Text Secondary: #9999AA
+- Danger/Loss: #FF4444
+- Success/Win: #00FF88
+
+## BETinas Persönlichkeit (für Chat-Implementierung)
+- Friendly, energetic, ein bisschen frech, immer positiv
+- "Best friend for game night" — nie belehrend, nie pushy
+- Kurze lockere Sätze, Emojis sparsam
+- Spricht den Spieler IMMER beim Namen an
+- Sprache = Marktsprache des Spielers (EN/ES/FR/PT)
+- NIEMALS: "gewinne deine Verluste zurück", Win-Versprechen, Druck
+
+## Screens (in dieser Reihenfolge bauen)
+1. **Splash** — BETinas Gesicht erwacht, cinematic animation, GeniusBet Logo
+2. **Login** — Handynummer Input, OTP Verify, GeniusBet Branding
+3. **Register** — Land-Picker, Name, Geburtsdatum, Email (minimal)
+4. **Home** — BETina Avatar prominent, persönliche Begrüßung, Balance, Quick Actions
+5. **Chat** — Konversation mit BETina, Glow-Effekte, Avatar oben
+6. **Notifications** — Push-Notifications als Timeline
+7. **Stats** — Spieler Journey, Wins, aktive Tage, VIP-Fortschritt
+8. **Settings** — Sprache, Notifications, Responsible Gaming, Logout
+
+## Spezial-Momente (must-have Animationen)
+- **Big Win:** goldene Partikel-Explosion + Konfetti + Sound
+- **Login Success:** BETinas Avatar nickt, persönliche Begrüßung fliegt ein
+- **Erster Win:** Screen-füllende Celebration
+- **VIP Tier Up:** Cinematic Premium-Moment
+- **Button Press:** kurzer Partikel-Burst in Neon Grün
+
+## Projektstruktur
+```
+betina-app/
+├── app/                    # Expo Router pages
+│   ├── (auth)/
+│   │   ├── index.tsx       # Splash
+│   │   ├── login.tsx       # Phone login
+│   │   └── register.tsx    # Registration
+│   ├── (tabs)/
+│   │   ├── index.tsx       # Home
+│   │   ├── chat.tsx        # Chat with BETina
+│   │   ├── notifications.tsx
+│   │   ├── stats.tsx
+│   │   └── settings.tsx
+│   └── _layout.tsx
+├── src/
+│   ├── theme/
+│   │   └── index.ts        # Design System (EINZIGE Quelle für Farben/Spacing)
+│   ├── components/
+│   │   ├── BETinaAvatar.tsx
+│   │   ├── GlowCard.tsx
+│   │   ├── ParticlesBg.tsx
+│   │   ├── AnimatedNumber.tsx
+│   │   └── ...
+│   ├── lib/
+│   │   ├── supabase.ts
+│   │   └── claude.ts
+│   └── hooks/
+├── assets/
+│   ├── betina-avatar.png
+│   └── animations/         # Lottie JSON files
+└── CLAUDE.md
+```
+
+## Coding Rules
+- TypeScript strict — keine `any` ohne Kommentar
+- Alle Farben aus `theme` importieren
+- Animationen mit Reanimated 3 (`useSharedValue`, `useAnimatedStyle`)
+- Lottie für komplexe Animationen (Big Win, Splash)
+- Haptics bei wichtigen Aktionen (`expo-haptics`)
+- Loading States immer zeigen
+- Error States elegant designen (BETina-Stil, kein Standard-Error)
+- Responsive: safe areas immer beachten (`useSafeAreaInsets`)
+
+## Supabase Schema (wird noch angelegt)
+- `profiles` — user_id, phone, name, country, language, vip_tier, created_at
+- `chat_messages` — user_id, role (user/assistant), content, created_at
+- `notifications` — user_id, type, title, body, read, created_at
+
+## Was NICHT in der App passiert
+- Kein "Bet Now" Button
+- Kein echtes Geld bewegen
+- Keine Quoten-Anzeige mit direktem Bet-Link
+- Nur: Chat, Empfehlungen, Stats, Push Notifications, Info
+
+---
+*Blueprint: BETina App v1.0 | GeniusBet | 2026*
