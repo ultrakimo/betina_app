@@ -30,7 +30,6 @@ export default function Journey() {
     : 1;
   const insets = useSafeAreaInsets();
   
-  const progress = progress;
 
   return (
     <ScreenBg glowTop={0.14} glowSize={460}>
