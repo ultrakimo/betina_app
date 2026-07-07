@@ -37,13 +37,15 @@ type Message = {
   xpNote?: string;
 };
 
-const INITIAL_MESSAGES: Message[] = [
-  {
-    id: 'm1',
-    role: 'assistant',
-    content: `Hey ${userName}! ⚡ Kickoff in 78 minutes. Barça's last 5 Clásicos: 3 wins, 1 draw, 1 loss. Want me to break down tonight's lineups?`,
-  },
-];
+function makeInitialMessages(name: string): Message[] {
+  return [
+    {
+      id: 'm1',
+      role: 'assistant',
+      content: `Hey ${name}! 👋 I'm BETina, your AI sports companion. Ask me anything — match previews, live scores, stats, or anything about your team.`,
+    },
+  ];
+}
 
 const QUICK_REPLIES = ['Show lineups', 'Head-to-head', 'Remind me'];
 
@@ -69,7 +71,11 @@ export default function Chat() {
   const { profile } = useProfile();
   const userName = profile?.name ?? 'friend';
   const insets = useSafeAreaInsets();
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    setMessages(makeInitialMessages(userName));
+  }, [userName]);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
