@@ -64,16 +64,19 @@ export default function Live() {
   useEffect(() => {
     if (!profile) return;
     const saved = (profile as any)?.favourite_sports as string | null;
-    if (saved) {
-      const sportIds = saved.split(',').filter(Boolean);
-      const filtered = ALL_SPORT_TABS.filter(
-        (t) => sportIds.some((s) => SPORT_TO_BBC[s] === t.id || t.id === 'sport')
-      );
-      setActiveTabs(filtered.length > 0 ? [...filtered, ALL_SPORT_TABS[ALL_SPORT_TABS.length - 1]] : ALL_SPORT_TABS);
-      // Default to first selected sport
-      const firstBbc = SPORT_TO_BBC[sportIds[0]] ?? 'sport';
-      setSport(firstBbc);
-    }
+    if (!saved) return;
+    const sportIds = saved.split(',').filter(Boolean);
+    // Map user sport IDs to BBC tab IDs, deduplicate
+    const bbcIds = [...new Set(sportIds.map((s) => SPORT_TO_BBC[s] ?? 'sport'))];
+    // Build tabs: matching BBC tabs + always add "All Sports" at end
+    const allSportsTab = ALL_SPORT_TABS[ALL_SPORT_TABS.length - 1];
+    const filtered = ALL_SPORT_TABS.filter(
+      (t) => t.id !== 'sport' && bbcIds.includes(t.id)
+    );
+    const tabs = filtered.length > 0 ? [...filtered, allSportsTab] : ALL_SPORT_TABS;
+    setActiveTabs(tabs);
+    // Default to first matched tab
+    setSport(filtered[0]?.id ?? 'sport');
   }, [profile?.favourite_sports]);
 
   useEffect(() => { fetchNews(); }, [sport]);

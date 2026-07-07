@@ -96,7 +96,7 @@ export default function Interests() {
       }
     }
     setLoading(false);
-    router.push({ pathname: '/(auth)/welcome', params: { name: name ?? '' } });
+    router.push({ pathname: '/(auth)/welcome', params: { name: name ?? '', team: selectedTeam?.strTeam ?? '' } });
   };
 
   return (
