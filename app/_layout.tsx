@@ -1,3 +1,4 @@
+import { I18nProvider } from '../src/lib/i18n';
 import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { Stack } from 'expo-router';
