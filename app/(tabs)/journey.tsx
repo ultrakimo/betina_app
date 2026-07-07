@@ -14,16 +14,23 @@ import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 export default function Journey() {
   const { profile, loading } = useProfile();
   const xp = profile?.xp_points ?? 0;
-  const tier = profile?.vip_tier ?? 'INITIATE';
+  const tierName = profile?.vip_tier ?? 'INITIATE';
   const team = profile?.favourite_team ?? null;
   const sport = profile?.favourite_sport ?? null;
   const streakDays = profile?.streak_days ?? 0;
   const memberSince = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     : '—';
+  const currentTierIndex = tiers.findIndex((t) => t.name === tierName);
+  const currentTierObj = tiers[currentTierIndex] ?? tiers[0];
+  const nextTierObj = tiers[currentTierIndex + 1] ?? null;
+  const xpForNextTier = nextTierObj ? nextTierObj.minXp : currentTierObj.minXp;
+  const progress = nextTierObj
+    ? (xp - currentTierObj.minXp) / (nextTierObj.minXp - currentTierObj.minXp)
+    : 1;
   const insets = useSafeAreaInsets();
-  const currentTierIndex = tiers.findIndex((t) => t.name === tier);
-  const progress = (() => { const cur = [...tiers].reverse().find(t => xp >= t.minXp) ?? tiers[0]; const nx = tiers[tiers.findIndex(t => t.name === cur.name) + 1]; return nx ? (xp - cur.minXp) / (nx.minXp - cur.minXp) : 1; })();
+  
+  const progress = progress;
 
   return (
     <ScreenBg glowTop={0.14} glowSize={460}>
