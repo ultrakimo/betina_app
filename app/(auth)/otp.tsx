@@ -19,7 +19,7 @@ import ScreenBg from '../../src/components/ScreenBg';
 import { supabase } from '../../src/lib/supabase';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
-const CODE_LENGTH = 4;
+const CODE_LENGTH = 6;
 
 export default function Otp() {
   const router = useRouter();
