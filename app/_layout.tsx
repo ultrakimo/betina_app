@@ -30,7 +30,7 @@ export default function RootLayout() {
   if (!fontsLoaded && Platform.OS !== 'web') return null;
 
   return (
-    <>
+    <I18nProvider>
       <StatusBar style="light" />
       <Stack
         screenOptions={{
@@ -44,6 +44,6 @@ export default function RootLayout() {
         <Stack.Screen name="celebration" options={{ presentation: 'transparentModal', animation: 'fade' }} />
         <Stack.Screen name="article" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
       </Stack>
-    </>
+    </I18nProvider>
   );
 }
