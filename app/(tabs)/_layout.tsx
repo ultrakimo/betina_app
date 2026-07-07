@@ -1,3 +1,4 @@
+import { useI18n } from '../../src/lib/i18n';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Tabs } from 'expo-router';
@@ -57,6 +58,7 @@ function GlassTabBar({ state, navigation }: TabBarProps) {
 }
 
 export default function TabsLayout() {
+  const { t } = useI18n();
   return (
     <Tabs
       tabBar={(props) => <GlassTabBar {...props} />}

@@ -27,6 +27,7 @@ import GlowCard from '../../src/components/GlowCard';
 import ScreenBg from '../../src/components/ScreenBg';
 import { askBetina } from '../../src/lib/claude';
 import { useProfile } from '../../src/hooks/useProfile';
+import { useI18n } from '../../src/lib/i18n';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 type Message = {
@@ -68,6 +69,7 @@ function TypingDot({ delay }: { delay: number }) {
 }
 
 export default function Chat() {
+  const { t } = useI18n();
   const { profile } = useProfile();
   const userName = profile?.name ?? 'friend';
   const insets = useSafeAreaInsets();

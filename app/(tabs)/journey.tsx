@@ -8,10 +8,12 @@ import ScreenBg from '../../src/components/ScreenBg';
 import TeamBadge from '../../src/components/TeamBadge';
 import XPBar from '../../src/components/XPBar';
 import { tiers } from '../../src/lib/demo';
+import { useI18n } from '../../src/lib/i18n';
 import { useProfile } from '../../src/hooks/useProfile';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 export default function Journey() {
+  const { t } = useI18n();
   const { profile, loading } = useProfile();
   const xp = profile?.xp_points ?? 0;
   const tierName = profile?.vip_tier ?? 'INITIATE';

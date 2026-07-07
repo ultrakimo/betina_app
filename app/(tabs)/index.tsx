@@ -44,6 +44,7 @@ type Profile = {
 };
 
 export default function Home() {
+  const { t } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [profile, setProfile] = useState<Profile | null>(null);

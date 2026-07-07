@@ -6,6 +6,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import GlowCard from '../../src/components/GlowCard';
 import ScreenBg from '../../src/components/ScreenBg';
 import { useProfile } from '../../src/hooks/useProfile';
+import { useI18n } from '../../src/lib/i18n';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 const API = 'https://intelligence.geniusbet.com';
@@ -46,6 +47,7 @@ function formatMatchDate(dateStr: string, timeStr: string) {
 }
 
 export default function Live() {
+  const { t } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { profile } = useProfile();
