@@ -87,6 +87,7 @@ export default function Interests() {
         await supabase.from('profiles').upsert({
           id: data.user.id,
           favourite_sport: selected[0] ?? null,
+          favourite_sports: selected.join(','),
           favourite_team: selectedTeam?.strTeam ?? null,
           favourite_team_id: selectedTeam?.idTeam ?? null,
           favourite_team_sport: selectedTeam?.strSport ?? null,

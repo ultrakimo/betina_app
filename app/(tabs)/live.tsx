@@ -10,13 +10,23 @@ import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 const API = 'https://intelligence.geniusbet.com';
 
-const SPORT_TABS = [
-  { id: 'football', label: '⚽ Football' },
-  { id: 'tennis',   label: '🎾 Tennis' },
-  { id: 'cricket',  label: '🏏 Cricket' },
-  { id: 'rugby',    label: '🏉 Rugby' },
-  { id: 'sport',    label: '🌍 All Sports' },
+const ALL_SPORT_TABS = [
+  { id: 'football',   label: '⚽ Football' },
+  { id: 'tennis',     label: '🎾 Tennis' },
+  { id: 'basketball', label: '🏀 Basketball' },
+  { id: 'cricket',    label: '🏏 Cricket' },
+  { id: 'rugby',      label: '🏉 Rugby' },
+  { id: 'athletics',  label: '🏃 Athletics' },
+  { id: 'golf',       label: '⛳ Golf' },
+  { id: 'sport',      label: '🌍 All Sports' },
 ];
+
+// Map app sport IDs to BBC feed IDs
+const SPORT_TO_BBC: Record<string, string> = {
+  football: 'football', tennis: 'tennis', basketball: 'sport',
+  cricket: 'cricket', rugby: 'rugby', athletics: 'athletics',
+  golf: 'golf', nfl: 'sport', mma: 'sport', esports: 'sport',
+};
 
 type NewsItem = { title: string; description: string; link: string; pubDate: string };
 type MatchEvent = { id: string; name: string; home: string; away: string; homeScore: string | null; awayScore: string | null; date: string; time: string; league: string };
@@ -40,6 +50,7 @@ export default function Live() {
   const insets = useSafeAreaInsets();
   const { profile } = useProfile();
   const [sport, setSport] = useState('football');
+  const [activeTabs, setActiveTabs] = useState(ALL_SPORT_TABS);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [nextEvents, setNextEvents] = useState<MatchEvent[]>([]);
   const [lastEvents, setLastEvents] = useState<MatchEvent[]>([]);
@@ -49,6 +60,21 @@ export default function Live() {
 
   const teamId = (profile as any)?.favourite_team_id ?? null;
   const teamName = profile?.favourite_team ?? null;
+
+  useEffect(() => {
+    if (!profile) return;
+    const saved = (profile as any)?.favourite_sports as string | null;
+    if (saved) {
+      const sportIds = saved.split(',').filter(Boolean);
+      const filtered = ALL_SPORT_TABS.filter(
+        (t) => sportIds.some((s) => SPORT_TO_BBC[s] === t.id || t.id === 'sport')
+      );
+      setActiveTabs(filtered.length > 0 ? [...filtered, ALL_SPORT_TABS[ALL_SPORT_TABS.length - 1]] : ALL_SPORT_TABS);
+      // Default to first selected sport
+      const firstBbc = SPORT_TO_BBC[sportIds[0]] ?? 'sport';
+      setSport(firstBbc);
+    }
+  }, [profile?.favourite_sports]);
 
   useEffect(() => { fetchNews(); }, [sport]);
   useEffect(() => { if (teamId) fetchTeamData(); }, [teamId]);
@@ -162,7 +188,7 @@ export default function Live() {
         {/* Sport tab pills */}
         <Animated.View entering={FadeInDown.delay(100).duration(500)}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
-            {SPORT_TABS.map((t) => (
+            {activeTabs.map((t) => (
               <Pressable
                 key={t.id}
                 onPress={() => setSport(t.id)}
