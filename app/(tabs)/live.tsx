@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -214,17 +214,43 @@ export default function Live() {
               <Text style={styles.emptyText}>No news available right now</Text>
             </GlowCard>
           ) : (
-            news.map((item, idx) => (
-              <Pressable key={idx} onPress={() => item.link && router.push({ pathname: '/article', params: { url: item.link, title: item.title } })}>
-                <GlowCard style={styles.newsCard}>
-                  <Text style={styles.newsTitle}>{item.title}</Text>
-                  {item.description ? (
-                    <Text style={styles.newsDesc} numberOfLines={2}>{item.description}</Text>
-                  ) : null}
-                  <Text style={styles.newsTime}>{timeAgo(item.pubDate)} · BBC Sport</Text>
-                </GlowCard>
-              </Pressable>
-            ))
+            <>
+              {/* First item: featured large card */}
+              {news[0] && (
+                <Pressable onPress={() => news[0].link && router.push({ pathname: '/article', params: { url: news[0].link, title: news[0].title, pubDate: news[0].pubDate } })}>
+                  <GlowCard style={styles.featuredCard}>
+                    {news[0].image ? (
+                      <Image source={{ uri: news[0].image }} style={styles.featuredImage} resizeMode="cover" />
+                    ) : (
+                      <View style={[styles.featuredImage, styles.imagePlaceholder]}>
+                        <Text style={styles.imagePlaceholderEmoji}>📰</Text>
+                      </View>
+                    )}
+                    <View style={styles.featuredBadge}>
+                      <Text style={styles.featuredBadgeText}>🔥 TOP STORY</Text>
+                    </View>
+                    <View style={styles.featuredContent}>
+                      <Text style={styles.featuredTitle} numberOfLines={3}>{news[0].title}</Text>
+                      <Text style={styles.newsTime}>{timeAgo(news[0].pubDate)} · BBC Sport</Text>
+                    </View>
+                  </GlowCard>
+                </Pressable>
+              )}
+              {/* Rest: compact horizontal image + text */}
+              {news.slice(1).map((item, idx) => (
+                <Pressable key={idx + 1} onPress={() => item.link && router.push({ pathname: '/article', params: { url: item.link, title: item.title, pubDate: item.pubDate } })}>
+                  <GlowCard style={styles.newsCard}>
+                    {item.image && (
+                      <Image source={{ uri: item.image }} style={styles.newsThumb} resizeMode="cover" />
+                    )}
+                    <View style={styles.newsBody}>
+                      <Text style={styles.newsTitle} numberOfLines={2}>{item.title}</Text>
+                      <Text style={styles.newsTime}>{timeAgo(item.pubDate)} · BBC Sport</Text>
+                    </View>
+                  </GlowCard>
+                </Pressable>
+              ))}
+            </>
           )}
         </Animated.View>
       </ScrollView>
@@ -271,9 +297,22 @@ const styles = StyleSheet.create({
   matchMeta: { gap: 2 },
   matchLeague: { color: Colors.textSecondary, fontSize: Typography.xs, fontFamily: Fonts.medium },
   matchDate: { color: Colors.textSecondary, fontSize: Typography.xs, fontFamily: Fonts.medium },
-  newsCard: { gap: 8, padding: 16 },
-  newsTitle: { color: '#FFFFFF', fontSize: Typography.sm + 1, fontFamily: Fonts.semibold, lineHeight: 20 },
-  newsDesc: { color: Colors.textSecondary, fontSize: Typography.xs + 1, fontFamily: Fonts.medium, lineHeight: 18 },
+  featuredCard: { padding: 0, overflow: 'hidden', gap: 0 },
+  featuredImage: { width: '100%', height: 200, borderTopLeftRadius: 16, borderTopRightRadius: 16 },
+  imagePlaceholder: { backgroundColor: '#1A1A2E', alignItems: 'center', justifyContent: 'center' },
+  imagePlaceholderEmoji: { fontSize: 40 },
+  featuredBadge: {
+    position: 'absolute', top: 12, left: 12,
+    backgroundColor: 'rgba(191,255,0,0.9)', borderRadius: 999,
+    paddingHorizontal: 10, paddingVertical: 4,
+  },
+  featuredBadgeText: { color: '#000', fontSize: Typography.xs - 1, fontFamily: Fonts.bold, letterSpacing: 0.8 },
+  featuredContent: { padding: 14, gap: 6 },
+  featuredTitle: { color: '#FFFFFF', fontSize: Typography.base + 1, fontFamily: Fonts.bold, lineHeight: 24 },
+  newsCard: { flexDirection: 'row', gap: 12, padding: 12, alignItems: 'center' },
+  newsThumb: { width: 80, height: 80, borderRadius: 10 },
+  newsBody: { flex: 1, gap: 6 },
+  newsTitle: { color: '#FFFFFF', fontSize: Typography.sm, fontFamily: Fonts.semibold, lineHeight: 20 },
   newsTime: { color: '#55556A', fontSize: Typography.xs, fontFamily: Fonts.medium },
   emptyCard: { padding: 20, alignItems: 'center' },
   emptyText: { color: Colors.textSecondary, fontSize: Typography.sm, fontFamily: Fonts.medium, textAlign: 'center' },
