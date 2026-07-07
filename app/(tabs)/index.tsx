@@ -18,7 +18,7 @@ import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 const GENIUSBET_URL = 'https://geniusbet.com';
 
-function greeting() {
+function getGreeting(t: any) {
   const h = new Date().getHours();
   if (h < 12) return 'Good morning,';
   if (h < 18) return 'Good afternoon,';
@@ -110,7 +110,7 @@ export default function Home() {
           <View style={styles.headerLeft}>
             <BETinaAvatar size={52} />
             <View style={styles.greetingBlock}>
-              <Text style={styles.greeting}>{greeting()}</Text>
+              <Text style={styles.greeting}>{getGreeting(t)}</Text>
               <Text style={styles.name}>{name} ⚡</Text>
             </View>
           </View>

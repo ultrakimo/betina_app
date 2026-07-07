@@ -6,16 +6,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { Colors, Fonts } from '../../src/theme';
 
-const TAB_META: Record<string, { emoji: string; label: string }> = {
-  index: { emoji: '🏠', label: 'Home' },
-  chat: { emoji: '💬', label: 'BETina' },
-  journey: { emoji: '🚀', label: 'Journey' },
-  live: { emoji: '⚽', label: 'Live & News' },
-  settings: { emoji: '⚙️', label: 'Settings' },
+type TabMeta = { emoji: string; labelKey: keyof any };
+
+const TAB_CONFIG: Record<string, { emoji: string; labelKey: string }> = {
+  index: { emoji: '🏠', labelKey: 'tabHome' },
+  chat: { emoji: '💬', labelKey: 'tabChat' },
+  journey: { emoji: '🚀', labelKey: 'tabJourney' },
+  live: { emoji: '⚽', labelKey: 'tabLive' },
+  settings: { emoji: '⚙️', labelKey: 'tabSettings' },
 };
 
-// Minimal shape of the react-navigation tab bar props we actually use —
-// expo-router vendors its own bottom-tabs types, so we don't import them.
 type TabBarProps = {
   state: { index: number; routes: Array<{ key: string; name: string }> };
   navigation: {
@@ -28,28 +28,38 @@ type TabBarProps = {
 
 function GlassTabBar({ state, navigation }: TabBarProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useI18n();
+
   return (
     <View style={[styles.wrap, { bottom: Math.max(insets.bottom, 14) + 12 }]}>
       {state.routes.map((route, index) => {
-        const meta = TAB_META[route.name];
-        if (!meta) return null;
+        const cfg = TAB_CONFIG[route.name];
+        if (!cfg) return null;
         const focused = state.index === index;
+        const label = (t as any)[cfg.labelKey] || cfg.labelKey;
         return (
           <Pressable
             key={route.key}
             onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               const event = navigation.emit({
                 type: 'tabPress',
                 target: route.key,
                 canPreventDefault: true,
               });
-              if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
+              if (!event.defaultPrevented) {
+                navigation.navigate(route.name);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }
             }}
-            style={[styles.tab, !focused && styles.tabInactive]}
+            style={[
+              styles.tab,
+              focused && styles.tabFocused,
+            ]}
           >
-            <Text style={styles.emoji}>{meta.emoji}</Text>
-            <Text style={[styles.label, focused && styles.labelActive]}>{meta.label}</Text>
+            <Text style={styles.tabEmoji}>{cfg.emoji}</Text>
+            <Text style={[styles.tabLabel, focused && styles.tabLabelFocused]}>
+              {label}
+            </Text>
           </Pressable>
         );
       })}
@@ -58,19 +68,19 @@ function GlassTabBar({ state, navigation }: TabBarProps) {
 }
 
 export default function TabsLayout() {
-  const { t } = useI18n();
   return (
     <Tabs
       tabBar={(props) => <GlassTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        sceneStyle: { backgroundColor: Colors.background },
+        contentStyle: { backgroundColor: Colors.background },
+        animation: 'fade',
       }}
     >
       <Tabs.Screen name="index" />
+      <Tabs.Screen name="live" />
       <Tabs.Screen name="chat" />
       <Tabs.Screen name="journey" />
-      <Tabs.Screen name="live" />
       <Tabs.Screen name="settings" />
     </Tabs>
   );
@@ -84,31 +94,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: 'rgba(20,20,28,0.92)',
+    height: 60,
+    backgroundColor: 'rgba(15,15,31,0.85)',
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    borderRadius: 26,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
+    borderColor: 'rgba(255,255,255,0.1)',
+    backdropFilter: 'blur(12px)',
   },
   tab: {
+    flex: 1,
     alignItems: 'center',
-    gap: 4,
-    minWidth: 52,
+    justifyContent: 'center',
+    height: '100%',
+    borderRadius: 16,
+    gap: 2,
   },
-  tabInactive: {
-    opacity: 0.5,
+  tabFocused: {
+    backgroundColor: 'rgba(191,255,0,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(191,255,0,0.25)',
   },
-  emoji: {
-    fontSize: 20,
-  },
-  label: {
-    color: Colors.textSecondary,
-    fontSize: 10,
-    fontFamily: Fonts.semibold,
-  },
-  labelActive: {
-    color: Colors.primary,
-    fontFamily: Fonts.bold,
-  },
+  tabEmoji: { fontSize: 18 },
+  tabLabel: { color: '#888899', fontSize: 9, fontWeight: '600', letterSpacing: 0.3 },
+  tabLabelFocused: { color: Colors.primary },
 });
