@@ -1,5 +1,4 @@
-import { detectLang, useI18n } from '../../src/lib/i18n';
-import * as Localization from 'expo-localization';
+import { useI18n } from '../../src/lib/i18n';
 import React, { useState } from 'react';
 import {
   FlatList,
@@ -47,13 +46,6 @@ const DIAL_CODES = [
 export default function Login() {
   const { lang, setLang, t } = useI18n();
 
-  // Auto-detect device language on first open (only if not already set)
-  React.useEffect(() => {
-    const locales = Localization.getLocales();
-    const deviceLocale = locales[0]?.languageTag ?? 'en';
-    const detected = detectLang(deviceLocale);
-    if (detected !== 'en') setLang(detected);
-  }, []);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [dialEntry, setDialEntry] = useState(DIAL_CODES[0]);
