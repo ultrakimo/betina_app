@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import {
+  FlatList,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -19,28 +21,83 @@ import ScreenBg from '../../src/components/ScreenBg';
 import { supabase } from '../../src/lib/supabase';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
+const COUNTRIES = [
+  { flag: '🇦🇹', name: 'Austria', code: 'AT' },
+  { flag: '🇩🇪', name: 'Germany', code: 'DE' },
+  { flag: '🇨🇭', name: 'Switzerland', code: 'CH' },
+  { flag: '🇧🇷', name: 'Brazil', code: 'BR' },
+  { flag: '🇸🇻', name: 'El Salvador', code: 'SV' },
+  { flag: '🇳🇬', name: 'Nigeria', code: 'NG' },
+  { flag: '🇹🇿', name: 'Tanzania', code: 'TZ' },
+  { flag: '🇨🇩', name: 'DR Congo', code: 'CD' },
+  { flag: '🇬🇳', name: 'Guinea', code: 'GN' },
+  { flag: '🇦🇴', name: 'Angola', code: 'AO' },
+  { flag: '🇲🇽', name: 'Mexico', code: 'MX' },
+  { flag: '🇨🇴', name: 'Colombia', code: 'CO' },
+  { flag: '🇦🇷', name: 'Argentina', code: 'AR' },
+  { flag: '🇵🇹', name: 'Portugal', code: 'PT' },
+  { flag: '🇪🇸', name: 'Spain', code: 'ES' },
+  { flag: '🇬🇧', name: 'United Kingdom', code: 'GB' },
+  { flag: '🇫🇷', name: 'France', code: 'FR' },
+  { flag: '🇮🇹', name: 'Italy', code: 'IT' },
+  { flag: '🇺🇸', name: 'United States', code: 'US' },
+  { flag: '🇰🇪', name: 'Kenya', code: 'KE' },
+  { flag: '🇬🇭', name: 'Ghana', code: 'GH' },
+  { flag: '🇸🇳', name: 'Senegal', code: 'SN' },
+  { flag: '🌍', name: 'Other', code: 'XX' },
+];
+
 export default function Register() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [name, setName] = useState('');
-  const [day, setDay] = useState('');
-  const [month, setMonth] = useState('');
-  const [year, setYear] = useState('');
-  const country = { flag: '🇦🇹', name: 'Austria' };
+  const [country, setCountry] = useState(COUNTRIES[0]);
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const continueSetup = async () => {
+    if (!name.trim()) return;
+    setLoading(true);
     const { data } = await supabase.auth.getUser();
     if (data.user) {
-      await supabase
-        .from('profiles')
-        .update({ name: name.trim(), country: country.name })
-        .eq('id', data.user.id);
+      await supabase.from('profiles').upsert({
+        id: data.user.id,
+        name: name.trim(),
+        country: country.name,
+        vip_tier: 'INITIATE',
+        xp_points: 100,
+        streak_days: 0,
+      });
     }
+    setLoading(false);
     router.push({ pathname: '/(auth)/interests', params: { name: name.trim() } });
   };
 
   return (
     <ScreenBg glowTop={0.14} glowSize={420}>
+      {/* Country picker modal */}
+      <Modal visible={pickerVisible} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalSheet, { paddingBottom: insets.bottom + 16 }]}>
+            <Text style={styles.modalTitle}>Select country</Text>
+            <FlatList
+              data={COUNTRIES}
+              keyExtractor={(c) => c.code}
+              renderItem={({ item }) => (
+                <Pressable
+                  style={[styles.modalItem, item.code === country.code && styles.modalItemActive]}
+                  onPress={() => { setCountry(item); setPickerVisible(false); }}
+                >
+                  <Text style={styles.modalFlag}>{item.flag}</Text>
+                  <Text style={styles.modalCountryName}>{item.name}</Text>
+                  {item.code === country.code && <Text style={styles.modalCheck}>✓</Text>}
+                </Pressable>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.flex}
@@ -52,7 +109,6 @@ export default function Register() {
           ]}
           keyboardShouldPersistTaps="handled"
         >
-          {/* back + step progress */}
           <View style={styles.topBar}>
             <BackButton />
             <View style={styles.progress}>
@@ -69,7 +125,7 @@ export default function Register() {
           <Animated.View entering={FadeInDown.delay(120).duration(600)} style={styles.form}>
             <View style={styles.field}>
               <Text style={styles.fieldLabel}>Country</Text>
-              <Pressable style={styles.selectRow}>
+              <Pressable style={styles.selectRow} onPress={() => setPickerVisible(true)}>
                 <View style={styles.selectLeft}>
                   <Text style={styles.flag}>{country.flag}</Text>
                   <Text style={styles.selectValue}>{country.name}</Text>
@@ -91,44 +147,6 @@ export default function Register() {
                 />
               </View>
             </View>
-
-            <View style={styles.field}>
-              <Text style={styles.fieldLabel}>Birthday</Text>
-              <View style={styles.birthdayRow}>
-                <View style={[styles.birthdayBox, { flex: 1 }]}>
-                  <TextInput
-                    value={day}
-                    onChangeText={setDay}
-                    placeholder="14"
-                    placeholderTextColor="#55556A"
-                    keyboardType="number-pad"
-                    maxLength={2}
-                    style={styles.birthdayInput}
-                  />
-                </View>
-                <View style={[styles.birthdayBox, { flex: 1.4 }]}>
-                  <TextInput
-                    value={month}
-                    onChangeText={setMonth}
-                    placeholder="March"
-                    placeholderTextColor="#55556A"
-                    style={styles.birthdayInput}
-                  />
-                </View>
-                <View style={[styles.birthdayBox, { flex: 1.2 }]}>
-                  <TextInput
-                    value={year}
-                    onChangeText={setYear}
-                    placeholder="1994"
-                    placeholderTextColor="#55556A"
-                    keyboardType="number-pad"
-                    maxLength={4}
-                    style={styles.birthdayInput}
-                  />
-                </View>
-              </View>
-              <Text style={styles.ageHint}>You must be 18+ to use BETina.</Text>
-            </View>
           </Animated.View>
 
           <View style={styles.spacer} />
@@ -144,7 +162,12 @@ export default function Register() {
             </Animated.View>
           )}
 
-          <GlowButton label="Continue" onPress={continueSetup} disabled={!name.trim()} />
+          <GlowButton
+            label="Continue"
+            onPress={continueSetup}
+            disabled={!name.trim()}
+            loading={loading}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </ScreenBg>
@@ -153,127 +176,77 @@ export default function Register() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: {
-    flexGrow: 1,
-    paddingHorizontal: Spacing.xl,
-  },
+  content: { flexGrow: 1, paddingHorizontal: Spacing.xl },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: Spacing.lg,
   },
-  progress: {
-    flexDirection: 'row',
-    gap: 6,
-  },
+  progress: { flexDirection: 'row', gap: 6 },
   progressSeg: {
-    width: 22,
-    height: 4,
-    borderRadius: 999,
+    width: 22, height: 4, borderRadius: 999,
     backgroundColor: 'rgba(255,255,255,0.12)',
   },
-  progressActive: {
-    backgroundColor: Colors.primary,
-  },
-  headerBlock: {
-    gap: Spacing.sm,
-    paddingBottom: 30,
-  },
-  title: {
-    color: '#FFFFFF',
-    fontSize: 26,
-    fontFamily: Fonts.bold,
-  },
+  progressActive: { backgroundColor: Colors.primary },
+  headerBlock: { gap: Spacing.sm, paddingBottom: 30 },
+  title: { color: '#FFFFFF', fontSize: 26, fontFamily: Fonts.bold },
   subtitle: {
-    color: Colors.textSecondary,
-    fontSize: Typography.sm + 1,
-    fontFamily: Fonts.medium,
-    lineHeight: 21,
+    color: Colors.textSecondary, fontSize: Typography.sm + 1,
+    fontFamily: Fonts.medium, lineHeight: 21,
   },
-  form: {
-    gap: Spacing.lg,
-  },
-  field: {
-    gap: Spacing.sm + 2,
-  },
+  form: { gap: Spacing.lg },
+  field: { gap: Spacing.sm + 2 },
   fieldLabel: {
-    color: Colors.textSecondary,
-    fontSize: Typography.xs + 1,
-    fontFamily: Fonts.semibold,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
+    color: Colors.textSecondary, fontSize: Typography.xs + 1,
+    fontFamily: Fonts.semibold, letterSpacing: 1.2, textTransform: 'uppercase',
   },
   selectRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: Colors.glass,
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    borderRadius: 20,
-    paddingVertical: 16,
-    paddingHorizontal: 18,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: Colors.glass, borderWidth: 1, borderColor: Colors.glassBorder,
+    borderRadius: 20, paddingVertical: 16, paddingHorizontal: 18,
   },
-  selectLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm + 2,
-  },
+  selectLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm + 2 },
   flag: { fontSize: 20 },
-  selectValue: {
-    color: '#FFFFFF',
-    fontSize: Typography.md - 1,
-    fontFamily: Fonts.semibold,
-  },
+  selectValue: { color: '#FFFFFF', fontSize: Typography.md - 1, fontFamily: Fonts.semibold },
   caret: { color: '#55556A', fontSize: 12 },
   inputWrap: {
-    backgroundColor: Colors.glass,
-    borderWidth: 1,
-    borderColor: 'rgba(191,255,0,0.45)',
-    borderRadius: 20,
-    paddingHorizontal: 18,
+    backgroundColor: Colors.glass, borderWidth: 1,
+    borderColor: 'rgba(191,255,0,0.45)', borderRadius: 20, paddingHorizontal: 18,
   },
   input: {
-    color: '#FFFFFF',
-    fontSize: Typography.md - 1,
-    fontFamily: Fonts.semibold,
-    paddingVertical: 16,
-  },
-  birthdayRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm + 2,
-  },
-  birthdayBox: {
-    backgroundColor: Colors.glass,
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    borderRadius: 20,
-  },
-  birthdayInput: {
-    color: '#FFFFFF',
-    fontSize: Typography.md - 1,
-    fontFamily: Fonts.semibold,
-    paddingVertical: 16,
-    textAlign: 'center',
-  },
-  ageHint: {
-    color: '#55556A',
-    fontSize: Typography.xs + 1,
-    fontFamily: Fonts.medium,
+    color: '#FFFFFF', fontSize: Typography.md - 1,
+    fontFamily: Fonts.semibold, paddingVertical: 16,
   },
   spacer: { flex: 1, minHeight: Spacing.xl },
-  hintRow: {
-    paddingBottom: 18,
-  },
+  hintRow: { paddingBottom: 18 },
   hintText: {
-    color: '#E8E8F0',
-    fontSize: Typography.sm,
-    fontFamily: Fonts.medium,
-    lineHeight: 20,
+    color: '#E8E8F0', fontSize: Typography.sm,
+    fontFamily: Fonts.medium, lineHeight: 20,
   },
-  hintAccent: {
-    color: Colors.primary,
-    fontFamily: Fonts.semibold,
+  hintAccent: { color: Colors.primary, fontFamily: Fonts.semibold },
+  // Modal
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'flex-end',
   },
+  modalSheet: {
+    backgroundColor: '#16162A', borderTopLeftRadius: 28,
+    borderTopRightRadius: 28, paddingTop: 20, maxHeight: '75%',
+  },
+  modalTitle: {
+    color: '#FFFFFF', fontSize: Typography.base,
+    fontFamily: Fonts.bold, textAlign: 'center', paddingBottom: 16,
+  },
+  modalItem: {
+    flexDirection: 'row', alignItems: 'center',
+    gap: Spacing.md, paddingVertical: 14, paddingHorizontal: 24,
+  },
+  modalItemActive: { backgroundColor: 'rgba(191,255,0,0.08)' },
+  modalFlag: { fontSize: 22 },
+  modalCountryName: {
+    flex: 1, color: '#FFFFFF',
+    fontSize: Typography.base - 1, fontFamily: Fonts.medium,
+  },
+  modalCheck: { color: Colors.primary, fontSize: Typography.base, fontFamily: Fonts.bold },
 });

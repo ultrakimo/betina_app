@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -7,7 +7,6 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import BackButton from '../../src/components/BackButton';
 import GlowButton from '../../src/components/GlowButton';
 import ScreenBg from '../../src/components/ScreenBg';
-import TeamBadge from '../../src/components/TeamBadge';
 import { sports } from '../../src/lib/demo';
 import { supabase } from '../../src/lib/supabase';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
@@ -17,7 +16,7 @@ export default function Interests() {
   const insets = useSafeAreaInsets();
   const { name } = useLocalSearchParams<{ name: string }>();
   const [selected, setSelected] = useState<string[]>(['football', 'tennis']);
-  const [teamSelected, setTeamSelected] = useState(true);
+  const [teamName, setTeamName] = useState('');
 
   const toggleSport = (id: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -32,7 +31,7 @@ export default function Interests() {
           .from('profiles')
           .update({
             favourite_sport: selected[0] ?? null,
-            favourite_team: teamSelected ? 'FC Barcelona' : null,
+            favourite_team: teamName.trim() || null,
           })
           .eq('id', data.user.id);
       }
@@ -83,21 +82,17 @@ export default function Interests() {
 
         {/* favorite team */}
         <Animated.View entering={FadeInDown.delay(200).duration(600)} style={styles.teamBlock}>
-          <Text style={styles.fieldLabel}>Favorite team</Text>
-          <Pressable
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setTeamSelected((v) => !v);
-            }}
-            style={[styles.teamRow, teamSelected && styles.teamRowActive]}
-          >
-            <View style={styles.teamLeft}>
-              <TeamBadge short="FCB" size={34} />
-              <Text style={styles.teamName}>FC Barcelona</Text>
-            </View>
-            {teamSelected && <Text style={styles.teamCheck}>✓</Text>}
-          </Pressable>
-          <Text style={styles.teamHint}>BETina will track every Barça match for you.</Text>
+          <Text style={styles.fieldLabel}>Favorite team (optional)</Text>
+          <View style={styles.teamInputWrap}>
+            <TextInput
+              value={teamName}
+              onChangeText={setTeamName}
+              placeholder="e.g. FC Barcelona, Real Madrid..."
+              placeholderTextColor="#55556A"
+              style={styles.teamInput}
+            />
+          </View>
+          <Text style={styles.teamHint}>BETina will track every match for your team.</Text>
         </Animated.View>
 
         <View style={styles.spacer} />
@@ -222,6 +217,19 @@ const styles = StyleSheet.create({
   teamCheck: {
     color: Colors.primary,
     fontSize: Typography.base,
+  },
+  teamInputWrap: {
+    backgroundColor: Colors.glass,
+    borderWidth: 1,
+    borderColor: 'rgba(191,255,0,0.35)',
+    borderRadius: 20,
+    paddingHorizontal: 18,
+  },
+  teamInput: {
+    color: '#FFFFFF',
+    fontSize: Typography.md - 1,
+    fontFamily: Fonts.semibold,
+    paddingVertical: 16,
   },
   teamHint: {
     color: '#55556A',
