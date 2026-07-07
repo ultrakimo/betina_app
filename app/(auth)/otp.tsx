@@ -60,7 +60,17 @@ export default function Otp() {
         refresh_token: data.refresh_token,
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace('/(tabs)');
+      // Check if profile exists — new user goes to register, existing to home
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id, name')
+        .eq('id', data.user.id)
+        .maybeSingle();
+      if (profile?.name) {
+        router.replace('/(tabs)');
+      } else {
+        router.replace('/(auth)/register');
+      }
     } catch (e) {
       setLoading(false);
       setError(`Network error — please try again.`);

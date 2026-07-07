@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import {
+  FlatList,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   StyleSheet,
@@ -16,16 +18,41 @@ import GlowButton from '../../src/components/GlowButton';
 import ScreenBg from '../../src/components/ScreenBg';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
+const DIAL_CODES = [
+  { flag: '🇦🇹', code: '+43', country: 'Austria' },
+  { flag: '🇩🇪', code: '+49', country: 'Germany' },
+  { flag: '🇨🇭', code: '+41', country: 'Switzerland' },
+  { flag: '🇧🇷', code: '+55', country: 'Brazil' },
+  { flag: '🇸🇻', code: '+503', country: 'El Salvador' },
+  { flag: '🇳🇬', code: '+234', country: 'Nigeria' },
+  { flag: '🇹🇿', code: '+255', country: 'Tanzania' },
+  { flag: '🇨🇩', code: '+243', country: 'DR Congo' },
+  { flag: '🇬🇳', code: '+224', country: 'Guinea' },
+  { flag: '🇦🇴', code: '+244', country: 'Angola' },
+  { flag: '🇲🇽', code: '+52', country: 'Mexico' },
+  { flag: '🇨🇴', code: '+57', country: 'Colombia' },
+  { flag: '🇦🇷', code: '+54', country: 'Argentina' },
+  { flag: '🇵🇹', code: '+351', country: 'Portugal' },
+  { flag: '🇪🇸', code: '+34', country: 'Spain' },
+  { flag: '🇬🇧', code: '+44', country: 'United Kingdom' },
+  { flag: '🇫🇷', code: '+33', country: 'France' },
+  { flag: '🇺🇸', code: '+1', country: 'United States' },
+  { flag: '🇰🇪', code: '+254', country: 'Kenya' },
+  { flag: '🇬🇭', code: '+233', country: 'Ghana' },
+  { flag: '🇸🇳', code: '+221', country: 'Senegal' },
+];
+
 export default function Login() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [dialEntry, setDialEntry] = useState(DIAL_CODES[0]);
+  const [dialPickerVisible, setDialPickerVisible] = useState(false);
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const dialCode = '+43';
 
   const sendCode = async () => {
-    const fullPhone = `${dialCode}${phone.replace(/\s/g, '')}`;
+    const fullPhone = `${dialEntry.code}${phone.replace(/\s/g, '')}`;
     if (phone.replace(/\D/g, '').length < 6) {
       setError("That number looks a bit short — mind checking it? 🤔");
       return;
@@ -53,6 +80,29 @@ export default function Login() {
 
   return (
     <ScreenBg glowTop={0.18} glowSize={420}>
+      {/* Dial code picker */}
+      <Modal visible={dialPickerVisible} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalSheet, { paddingBottom: insets.bottom + 16 }]}>
+            <Text style={styles.modalTitle}>Select country code</Text>
+            <FlatList
+              data={DIAL_CODES}
+              keyExtractor={(d) => d.code + d.country}
+              renderItem={({ item }) => (
+                <Pressable
+                  style={[styles.dialRow, item.code === dialEntry.code && item.country === dialEntry.country && styles.dialRowActive]}
+                  onPress={() => { setDialEntry(item); setDialPickerVisible(false); }}
+                >
+                  <Text style={styles.dialFlag}>{item.flag}</Text>
+                  <Text style={styles.dialCountry}>{item.country}</Text>
+                  <Text style={styles.dialCode}>{item.code}</Text>
+                </Pressable>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.flex}
@@ -63,33 +113,28 @@ export default function Login() {
             { paddingTop: insets.top + Spacing.xl, paddingBottom: insets.bottom + Spacing['2xl'] },
           ]}
         >
-          {/* BETina greets */}
           <Animated.View entering={FadeInDown.duration(700)} style={styles.header}>
             <BETinaAvatar size={88} />
             <View style={styles.headerText}>
-              <Text style={styles.title}>Welcome back</Text>
+              <Text style={styles.title}>Welcome</Text>
               <Text style={styles.subtitle}>
-                BETina is waiting for you.{'\n'}Sign in with your phone number.
+                Enter your phone number to continue.{'\n'}New? We'll set you up right away.
               </Text>
             </View>
           </Animated.View>
 
-          {/* phone input */}
           <Animated.View entering={FadeInDown.delay(150).duration(700)} style={styles.field}>
             <Text style={styles.fieldLabel}>Phone number</Text>
             <View style={styles.phoneRow}>
-              <View style={styles.dialCode}>
-                <Text style={styles.dialFlag}>🇦🇹</Text>
-                <Text style={styles.dialText}>{dialCode}</Text>
+              <Pressable style={styles.dialCode} onPress={() => setDialPickerVisible(true)}>
+                <Text style={styles.dialFlag}>{dialEntry.flag}</Text>
+                <Text style={styles.dialText}>{dialEntry.code}</Text>
                 <Text style={styles.dialCaret}>▾</Text>
-              </View>
+              </Pressable>
               <View style={styles.inputWrap}>
                 <TextInput
                   value={phone}
-                  onChangeText={(t) => {
-                    setPhone(t);
-                    setError(null);
-                  }}
+                  onChangeText={(t) => { setPhone(t); setError(null); }}
                   placeholder="664 123 45"
                   placeholderTextColor="#55556A"
                   keyboardType="phone-pad"
@@ -101,7 +146,6 @@ export default function Login() {
             {error && <Text style={styles.error}>{error}</Text>}
           </Animated.View>
 
-          {/* CTA */}
           <Animated.View entering={FadeInDown.delay(250).duration(700)} style={styles.ctaBlock}>
             <GlowButton label="Send code" onPress={sendCode} loading={loading} />
             <Text style={styles.terms}>
@@ -111,13 +155,6 @@ export default function Login() {
           </Animated.View>
 
           <View style={styles.flex} />
-
-          <View style={styles.registerRow}>
-            <Text style={styles.registerHint}>New here?</Text>
-            <Pressable onPress={() => router.push('/(auth)/register')} hitSlop={8}>
-              <Text style={styles.registerLink}>Create account</Text>
-            </Pressable>
-          </View>
         </View>
       </KeyboardAvoidingView>
     </ScreenBg>
@@ -126,111 +163,57 @@ export default function Login() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: {
-    flex: 1,
-    paddingHorizontal: Spacing.xl,
-  },
-  header: {
-    alignItems: 'center',
-    gap: Spacing.base,
-    paddingTop: 28,
-    paddingBottom: 36,
-  },
-  headerText: {
-    alignItems: 'center',
-    gap: 6,
-  },
-  title: {
-    color: '#FFFFFF',
-    fontSize: 26,
-    fontFamily: Fonts.bold,
-  },
+  content: { flex: 1, paddingHorizontal: Spacing.xl },
+  header: { alignItems: 'center', gap: Spacing.base, paddingTop: 28, paddingBottom: 36 },
+  headerText: { alignItems: 'center', gap: 6 },
+  title: { color: '#FFFFFF', fontSize: 26, fontFamily: Fonts.bold },
   subtitle: {
-    color: Colors.textSecondary,
-    fontSize: Typography.sm + 1,
-    fontFamily: Fonts.medium,
-    textAlign: 'center',
-    lineHeight: 21,
+    color: Colors.textSecondary, fontSize: Typography.sm + 1,
+    fontFamily: Fonts.medium, textAlign: 'center', lineHeight: 21,
   },
-  field: {
-    gap: Spacing.sm + 2,
-  },
+  field: { gap: Spacing.sm + 2 },
   fieldLabel: {
-    color: Colors.textSecondary,
-    fontSize: Typography.xs + 1,
-    fontFamily: Fonts.semibold,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
+    color: Colors.textSecondary, fontSize: Typography.xs + 1,
+    fontFamily: Fonts.semibold, letterSpacing: 1.2, textTransform: 'uppercase',
   },
-  phoneRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm + 2,
-  },
+  phoneRow: { flexDirection: 'row', gap: Spacing.sm + 2 },
   dialCode: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    backgroundColor: Colors.glass,
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    borderRadius: 20,
-    paddingHorizontal: 14,
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
+    backgroundColor: Colors.glass, borderWidth: 1, borderColor: Colors.glassBorder,
+    borderRadius: 20, paddingHorizontal: 14,
   },
   dialFlag: { fontSize: 18 },
-  dialText: {
-    color: '#FFFFFF',
-    fontSize: Typography.md - 1,
-    fontFamily: Fonts.semibold,
-  },
+  dialText: { color: '#FFFFFF', fontSize: Typography.md - 1, fontFamily: Fonts.semibold },
   dialCaret: { color: '#55556A', fontSize: 11 },
   inputWrap: {
-    flex: 1,
-    backgroundColor: Colors.glass,
-    borderWidth: 1,
-    borderColor: 'rgba(191,255,0,0.45)',
-    borderRadius: 20,
-    paddingHorizontal: 18,
+    flex: 1, backgroundColor: Colors.glass, borderWidth: 1,
+    borderColor: 'rgba(191,255,0,0.45)', borderRadius: 20, paddingHorizontal: 18,
   },
   input: {
-    color: '#FFFFFF',
-    fontSize: Typography.md - 1,
-    fontFamily: Fonts.semibold,
-    paddingVertical: 16,
+    color: '#FFFFFF', fontSize: Typography.md - 1,
+    fontFamily: Fonts.semibold, paddingVertical: 16,
   },
-  error: {
-    color: Colors.danger,
-    fontSize: Typography.sm,
-    fontFamily: Fonts.medium,
-    lineHeight: 19,
-  },
-  ctaBlock: {
-    gap: 18,
-    marginTop: 28,
-  },
+  error: { color: Colors.danger, fontSize: Typography.sm, fontFamily: Fonts.medium, lineHeight: 19 },
+  ctaBlock: { gap: 18, marginTop: 28 },
   terms: {
-    color: '#55556A',
-    fontSize: Typography.xs + 1,
-    fontFamily: Fonts.medium,
-    textAlign: 'center',
-    lineHeight: 19,
+    color: '#55556A', fontSize: Typography.xs + 1,
+    fontFamily: Fonts.medium, textAlign: 'center', lineHeight: 19,
   },
-  termsLink: {
-    color: Colors.textSecondary,
-    textDecorationLine: 'underline',
+  termsLink: { color: Colors.textSecondary, textDecorationLine: 'underline' },
+  // Modal
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
+  modalSheet: {
+    backgroundColor: '#16162A', borderTopLeftRadius: 28,
+    borderTopRightRadius: 28, paddingTop: 20, maxHeight: '80%',
   },
-  registerRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 6,
+  modalTitle: {
+    color: '#FFFFFF', fontSize: Typography.base, fontFamily: Fonts.bold,
+    textAlign: 'center', paddingBottom: 16,
   },
-  registerHint: {
-    color: Colors.textSecondary,
-    fontSize: Typography.base - 1,
-    fontFamily: Fonts.medium,
+  dialRow: {
+    flexDirection: 'row', alignItems: 'center',
+    gap: Spacing.md, paddingVertical: 14, paddingHorizontal: 24,
   },
-  registerLink: {
-    color: Colors.primary,
-    fontSize: Typography.base - 1,
-    fontFamily: Fonts.semibold,
-  },
+  dialRowActive: { backgroundColor: 'rgba(191,255,0,0.08)' },
+  dialCountry: { flex: 1, color: '#FFFFFF', fontSize: Typography.base - 1, fontFamily: Fonts.medium },
 });

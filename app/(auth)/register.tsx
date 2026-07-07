@@ -53,10 +53,25 @@ export default function Register() {
   const [name, setName] = useState('');
   const [country, setCountry] = useState(COUNTRIES[0]);
   const [pickerVisible, setPickerVisible] = useState(false);
+  const [day, setDay] = useState('');
+  const [month, setMonth] = useState('');
+  const [year, setYear] = useState('');
+  const [birthdayError, setBirthdayError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const continueSetup = async () => {
     if (!name.trim()) return;
+    setBirthdayError(null);
+    const d = parseInt(day), m = parseInt(month), y = parseInt(year);
+    if (!day || !month || !year || isNaN(d) || isNaN(m) || isNaN(y) || y < 1900) {
+      setBirthdayError('Please enter your full birthday.');
+      return;
+    }
+    if (new Date().getFullYear() - y < 18) {
+      setBirthdayError('You must be 18 or older to use BETina.');
+      return;
+    }
+    const bday = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     setLoading(true);
     const { data } = await supabase.auth.getUser();
     if (data.user) {
@@ -64,6 +79,7 @@ export default function Register() {
         id: data.user.id,
         name: name.trim(),
         country: country.name,
+        birthday: bday,
         vip_tier: 'INITIATE',
         xp_points: 100,
         streak_days: 0,
@@ -149,6 +165,33 @@ export default function Register() {
             </View>
           </Animated.View>
 
+            <View style={styles.field}>
+              <Text style={styles.fieldLabel}>Birthday</Text>
+              <View style={styles.birthdayRow}>
+                <View style={[styles.birthdayBox, { flex: 1 }]}>
+                  <TextInput value={day}
+                    onChangeText={(t) => { setDay(t.replace(/\D/g,'').slice(0,2)); setBirthdayError(null); }}
+                    placeholder="DD" placeholderTextColor="#55556A"
+                    keyboardType="number-pad" maxLength={2} style={styles.birthdayInput} />
+                </View>
+                <View style={[styles.birthdayBox, { flex: 1 }]}>
+                  <TextInput value={month}
+                    onChangeText={(t) => { setMonth(t.replace(/\D/g,'').slice(0,2)); setBirthdayError(null); }}
+                    placeholder="MM" placeholderTextColor="#55556A"
+                    keyboardType="number-pad" maxLength={2} style={styles.birthdayInput} />
+                </View>
+                <View style={[styles.birthdayBox, { flex: 1.4 }]}>
+                  <TextInput value={year}
+                    onChangeText={(t) => { setYear(t.replace(/\D/g,'').slice(0,4)); setBirthdayError(null); }}
+                    placeholder="YYYY" placeholderTextColor="#55556A"
+                    keyboardType="number-pad" maxLength={4} style={styles.birthdayInput} />
+                </View>
+              </View>
+              {birthdayError
+                ? <Text style={styles.birthdayErr}>{birthdayError}</Text>
+                : <Text style={styles.ageHint}>You must be 18+ to use BETina.</Text>}
+            </View>
+
           <View style={styles.spacer} />
 
           {name.trim().length > 0 && (
@@ -165,7 +208,7 @@ export default function Register() {
           <GlowButton
             label="Continue"
             onPress={continueSetup}
-            disabled={!name.trim()}
+            disabled={!name.trim() || !day || !month || !year}
             loading={loading}
           />
         </ScrollView>
@@ -225,6 +268,11 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.medium, lineHeight: 20,
   },
   hintAccent: { color: Colors.primary, fontFamily: Fonts.semibold },
+  birthdayRow: { flexDirection: 'row', gap: Spacing.sm + 2 },
+  birthdayBox: { backgroundColor: Colors.glass, borderWidth: 1, borderColor: Colors.glassBorder, borderRadius: 20 },
+  birthdayInput: { color: '#FFFFFF', fontSize: Typography.md - 1, fontFamily: Fonts.semibold, paddingVertical: 16, textAlign: 'center' },
+  ageHint: { color: '#55556A', fontSize: Typography.xs + 1, fontFamily: Fonts.medium },
+  birthdayErr: { color: Colors.danger, fontSize: Typography.xs + 1, fontFamily: Fonts.medium },
   // Modal
   modalOverlay: {
     flex: 1, backgroundColor: 'rgba(0,0,0,0.7)',
