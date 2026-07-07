@@ -9,7 +9,7 @@ import GlowCard from '../../src/components/GlowCard';
 import ScreenBg from '../../src/components/ScreenBg';
 import SectionLabel from '../../src/components/SectionLabel';
 import Toggle from '../../src/components/Toggle';
-import { demoProfile } from '../../src/lib/demo';
+import { useProfile } from '../../src/hooks/useProfile';
 import { supabase } from '../../src/lib/supabase';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
@@ -44,6 +44,9 @@ function Row({
 }
 
 export default function Settings() {
+  const { profile, phone } = useProfile();
+  const name = profile?.name ?? '...';
+  const tier = profile?.vip_tier ?? 'INITIATE';
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [eventReminders, setEventReminders] = useState(true);
@@ -72,12 +75,12 @@ export default function Settings() {
         <Animated.View entering={FadeInDown.delay(80).duration(500)}>
           <GlowCard style={styles.profileCard}>
             <View style={styles.profileInitial}>
-              <Text style={styles.profileInitialLabel}>{demoProfile.name[0]}</Text>
+              <Text style={styles.profileInitialLabel}>{name[0]}</Text>
             </View>
             <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>{demoProfile.name}</Text>
+              <Text style={styles.profileName}>{name}</Text>
               <Text style={styles.profileMeta}>
-                {demoProfile.phone} · {demoProfile.tier}
+                {phone ?? '—'} · {tier}
               </Text>
             </View>
             <Text style={styles.rowChevron}>›</Text>

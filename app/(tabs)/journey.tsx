@@ -7,13 +7,23 @@ import GlowCard from '../../src/components/GlowCard';
 import ScreenBg from '../../src/components/ScreenBg';
 import TeamBadge from '../../src/components/TeamBadge';
 import XPBar from '../../src/components/XPBar';
-import { demoProfile, tiers } from '../../src/lib/demo';
+import { tiers } from '../../src/lib/demo';
+import { useProfile } from '../../src/hooks/useProfile';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 export default function Journey() {
+  const { profile, loading } = useProfile();
+  const xp = profile?.xp_points ?? 0;
+  const tier = profile?.vip_tier ?? 'INITIATE';
+  const team = profile?.favourite_team ?? null;
+  const sport = profile?.favourite_sport ?? null;
+  const streakDays = profile?.streak_days ?? 0;
+  const memberSince = profile?.created_at
+    ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : '—';
   const insets = useSafeAreaInsets();
-  const currentTierIndex = tiers.findIndex((t) => t.name === demoProfile.tier);
-  const progress = demoProfile.xp / demoProfile.xpForNextTier;
+  const currentTierIndex = tiers.findIndex((t) => t.name === tier);
+  const progress = (() => { const cur = [...tiers].reverse().find(t => xp >= t.minXp) ?? tiers[0]; const nx = tiers[tiers.findIndex(t => t.name === cur.name) + 1]; return nx ? (xp - cur.minXp) / (nx.minXp - cur.minXp) : 1; })();
 
   return (
     <ScreenBg glowTop={0.14} glowSize={460}>
@@ -28,10 +38,10 @@ export default function Journey() {
         <Animated.View entering={FadeInDown.duration(500)} style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>My Journey</Text>
-            <Text style={styles.subtitle}>Member since {demoProfile.memberSince}</Text>
+            <Text style={styles.subtitle}>Member since {memberSince}</Text>
           </View>
           <View style={styles.headerRight}>
-            <AnimatedNumber value={demoProfile.xp} style={styles.xpValue} />
+            <AnimatedNumber value={xp} style={styles.xpValue} />
             <Text style={styles.xpLabel}>TOTAL XP</Text>
           </View>
         </Animated.View>
@@ -90,9 +100,9 @@ export default function Journey() {
                       <View style={styles.currentProgress}>
                         <XPBar progress={progress} height={6} />
                         <Text style={styles.tierMeta}>
-                          {demoProfile.xp.toLocaleString('en-US')} /{' '}
-                          {demoProfile.xpForNextTier.toLocaleString('en-US')} XP ·{' '}
-                          {demoProfile.xpForNextTier - demoProfile.xp} XP to next tier
+                          {xp.toLocaleString('en-US')} /{' '}
+                          {xpForNextTier.toLocaleString('en-US')} XP ·{' '}
+                          {xpForNextTier - xp} XP to next tier
                         </Text>
                       </View>
                     ) : (
@@ -112,45 +122,45 @@ export default function Journey() {
         {/* activity stats grid */}
         <Animated.View entering={FadeInDown.delay(220).duration(500)} style={styles.grid}>
           <GlowCard style={styles.statCard}>
-            <Text style={styles.statValue}>🔥 {demoProfile.streakDays}</Text>
+            <Text style={styles.statValue}>🔥 {streakDays}</Text>
             <Text style={styles.statLabel}>Day streak</Text>
           </GlowCard>
           <GlowCard style={styles.statCard}>
-            <AnimatedNumber value={demoProfile.chats} style={styles.statValue} format={false} />
+            <AnimatedNumber value={0} style={styles.statValue} format={false} />
             <Text style={styles.statLabel}>Chats with BETina</Text>
           </GlowCard>
           <GlowCard style={styles.statCard}>
             <AnimatedNumber
-              value={demoProfile.eventsFollowed}
+              value={0}
               style={styles.statValue}
               format={false}
             />
             <Text style={styles.statLabel}>Events followed</Text>
           </GlowCard>
           <GlowCard style={styles.statCard}>
-            <Text style={styles.statValueGold}>🏅 {demoProfile.achievements}</Text>
+            <Text style={styles.statValueGold}>🏅 {0}</Text>
             <Text style={styles.statLabel}>Achievements</Text>
           </GlowCard>
           <GlowCard style={styles.statCard}>
-            <Text style={styles.statValue}>⚽ {demoProfile.favouriteSport}</Text>
+            <Text style={styles.statValue}>⚽ {sport ?? '—'}</Text>
             <Text style={styles.statLabel}>Favourite sport</Text>
           </GlowCard>
           <GlowCard style={styles.statCard}>
             <View style={styles.teamRow}>
               <TeamBadge short="FCB" size={24} />
-              <Text style={styles.teamValue}>{demoProfile.favouriteTeam}</Text>
+              <Text style={styles.teamValue}>{team ?? '—'}</Text>
             </View>
             <Text style={styles.statLabel}>Top team</Text>
           </GlowCard>
           <GlowCard style={[styles.statCard, styles.statCardWide]}>
             <View style={styles.activeDaysRow}>
               <AnimatedNumber
-                value={demoProfile.activeDays}
+                value={0}
                 style={styles.statValueGreen}
                 format={false}
               />
               <Text style={styles.activeDaysMeta}>
-                of {demoProfile.daysSinceJoining} days since joining
+                of {0} days since joining
               </Text>
             </View>
             <Text style={styles.statLabel}>Active days</Text>

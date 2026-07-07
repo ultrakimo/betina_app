@@ -26,7 +26,7 @@ import ChatBubble from '../../src/components/ChatBubble';
 import GlowCard from '../../src/components/GlowCard';
 import ScreenBg from '../../src/components/ScreenBg';
 import { askBetina } from '../../src/lib/claude';
-import { demoProfile } from '../../src/lib/demo';
+import { useProfile } from '../../src/hooks/useProfile';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 type Message = {
@@ -41,7 +41,7 @@ const INITIAL_MESSAGES: Message[] = [
   {
     id: 'm1',
     role: 'assistant',
-    content: `Hey ${demoProfile.name}! ⚡ Kickoff in 78 minutes. Barça's last 5 Clásicos: 3 wins, 1 draw, 1 loss. Want me to break down tonight's lineups?`,
+    content: `Hey ${userName}! ⚡ Kickoff in 78 minutes. Barça's last 5 Clásicos: 3 wins, 1 draw, 1 loss. Want me to break down tonight's lineups?`,
   },
 ];
 
@@ -66,6 +66,8 @@ function TypingDot({ delay }: { delay: number }) {
 }
 
 export default function Chat() {
+  const { profile } = useProfile();
+  const userName = profile?.name ?? 'friend';
   const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState('');
@@ -82,7 +84,7 @@ export default function Chat() {
     setTyping(true);
 
     const history = [...messages, userMsg].map(({ role, content }) => ({ role, content }));
-    const reply = await askBetina(history, demoProfile.name);
+    const reply = await askBetina(history, userName);
 
     setTyping(false);
     setMessages((prev) => [
