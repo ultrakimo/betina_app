@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -215,7 +215,7 @@ export default function Live() {
             </GlowCard>
           ) : (
             news.map((item, idx) => (
-              <Pressable key={idx} onPress={() => item.link && Linking.openURL(item.link)}>
+              <Pressable key={idx} onPress={() => item.link && router.push({ pathname: '/article', params: { url: item.link, title: item.title } })}>
                 <GlowCard style={styles.newsCard}>
                   <Text style={styles.newsTitle}>{item.title}</Text>
                   {item.description ? (

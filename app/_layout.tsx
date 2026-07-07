@@ -41,6 +41,7 @@ export default function RootLayout() {
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="celebration" options={{ presentation: 'transparentModal', animation: 'fade' }} />
+        <Stack.Screen name="article" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
       </Stack>
     </>
   );
