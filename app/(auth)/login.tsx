@@ -14,7 +14,6 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import BETinaAvatar from '../../src/components/BETinaAvatar';
 import GlowButton from '../../src/components/GlowButton';
 import ScreenBg from '../../src/components/ScreenBg';
-import { supabase } from '../../src/lib/supabase';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 export default function Login() {
@@ -33,16 +32,23 @@ export default function Login() {
     }
     setLoading(true);
     setError(null);
-    const { error: otpError } = await supabase.auth.signInWithOtp({ phone: fullPhone });
-    setLoading(false);
-    if (otpError) {
-      setError(`Hmm, that didn't work: ${otpError.message}`);
-      if (!__DEV__) return;
-      // In dev builds, continue to the OTP screen anyway so the flow can be previewed
+    try {
+      const res = await fetch('https://intelligence.geniusbet.com/api/sms/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: fullPhone }),
+      });
+      const data = await res.json();
+      setLoading(false);
+      if (!res.ok || !data.success) {
+        setError(`Hmm, that didn't work. Please try again.`);
+        return;
+      }
       router.push({ pathname: '/(auth)/otp', params: { phone: fullPhone } });
-      return;
+    } catch (e) {
+      setLoading(false);
+      setError(`Network error — please try again.`);
     }
-    router.push({ pathname: '/(auth)/otp', params: { phone: fullPhone } });
   };
 
   return (

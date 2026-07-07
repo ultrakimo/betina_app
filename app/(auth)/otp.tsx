@@ -41,29 +41,40 @@ export default function Otp() {
     if (code.length < CODE_LENGTH) return;
     setLoading(true);
     setError(null);
-    const { error: verifyError } = await supabase.auth.verifyOtp({
-      phone: phone ?? '',
-      token: code,
-      type: 'sms',
-    });
-    setLoading(false);
-    if (verifyError) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      setError(`That code didn't match — try again? 🔐`);
-      if (__DEV__) {
-        // Dev preview: continue the onboarding flow without a real SMS backend
-        router.push('/(auth)/register');
+    try {
+      const res = await fetch('https://intelligence.geniusbet.com/api/sms/otp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phone ?? '', otp: code }),
+      });
+      const data = await res.json();
+      setLoading(false);
+      if (!res.ok || data.error) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        setError(`That code didn't match — try again? 🔐`);
+        return;
       }
-      return;
+      // Set session in Supabase client
+      await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      router.replace('/(tabs)');
+    } catch (e) {
+      setLoading(false);
+      setError(`Network error — please try again.`);
     }
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    router.replace('/(tabs)');
   };
 
   const resend = async () => {
     if (resendIn > 0) return;
     setResendIn(24);
-    await supabase.auth.signInWithOtp({ phone: phone ?? '' });
+    await fetch('https://intelligence.geniusbet.com/api/sms/otp/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: phone ?? '' }),
+    });
   };
 
   const digits = Array.from({ length: CODE_LENGTH }, (_, i) => code[i] ?? '');
