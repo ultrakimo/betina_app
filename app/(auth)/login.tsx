@@ -74,7 +74,7 @@ export default function Login() {
         setError(`Hmm, that didn't work. Please try again.`);
         return;
       }
-      router.push({ pathname: '/(auth)/otp', params: { phone: fullPhone } });
+      router.push({ pathname: '/(auth)/otp', params: { phone: encodeURIComponent(fullPhone) } });
     } catch (e) {
       setLoading(false);
       setError(`Network error — please try again.`);

@@ -24,7 +24,8 @@ const CODE_LENGTH = 6;
 export default function Otp() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { phone } = useLocalSearchParams<{ phone: string }>();
+  const { phone: rawPhone } = useLocalSearchParams<{ phone: string }>();
+  const phone = rawPhone ? decodeURIComponent(rawPhone).trim() : '';
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
