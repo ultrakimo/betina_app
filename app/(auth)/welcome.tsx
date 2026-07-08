@@ -9,9 +9,11 @@ import GlowButton from '../../src/components/GlowButton';
 import GlowCard from '../../src/components/GlowCard';
 import ParticlesBg from '../../src/components/ParticlesBg';
 import ScreenBg from '../../src/components/ScreenBg';
+import { useI18n } from '../../src/lib/i18n';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 export default function Welcome() {
+  const { t } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { name, team } = useLocalSearchParams<{ name: string; team?: string }>();
@@ -34,12 +36,10 @@ export default function Welcome() {
         </Animated.View>
 
         <Animated.View entering={FadeInDown.delay(250).duration(900)} style={styles.headlineBlock}>
-          <Text style={styles.headline}>Welcome, {displayName}! 👋</Text>
+          <Text style={styles.headline}>{t.welcomeTitle}, {displayName}! 👋</Text>
           <Text style={styles.sub}>
-            I'm BETina — your AI companion.{' '}
-            {teamParam
-              ? `I'll keep an eye on ${teamParam}, your XP and everything in between.`
-              : "I'll track your sports, XP and everything in between."}
+            {t.welcomeSubtitle}
+            {teamParam ? ` 🏟 ${teamParam}` : ''}
           </Text>
         </Animated.View>
 
@@ -58,7 +58,7 @@ export default function Welcome() {
         <View style={{ flex: 1 }} />
 
         <Animated.View entering={FadeInDown.delay(650).duration(900)} style={styles.ctaWrap}>
-          <GlowButton label="Let's go" onPress={() => router.replace('/(tabs)')} />
+          <GlowButton label={t.registerBtn} onPress={() => router.replace('/(tabs)')} />
         </Animated.View>
       </View>
     </ScreenBg>

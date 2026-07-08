@@ -19,6 +19,7 @@ import BackButton from '../../src/components/BackButton';
 import GlowButton from '../../src/components/GlowButton';
 import ScreenBg from '../../src/components/ScreenBg';
 import { sports } from '../../src/lib/demo';
+import { useI18n } from '../../src/lib/i18n';
 import { supabase } from '../../src/lib/supabase';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
@@ -32,6 +33,7 @@ type Team = {
 };
 
 export default function Interests() {
+  const { t } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { name } = useLocalSearchParams<{ name: string }>();
@@ -174,8 +176,8 @@ export default function Interests() {
         </View>
 
         <Animated.View entering={FadeInDown.duration(600)} style={styles.headerBlock}>
-          <Text style={styles.title}>What are you into?</Text>
-          <Text style={styles.subtitle}>Pick your sports so BETina knows what to watch for you.</Text>
+          <Text style={styles.title}>{t.interestsTitle}</Text>
+          <Text style={styles.subtitle}>{t.interestsSubtitle}</Text>
         </Animated.View>
 
         {/* sport chips */}
@@ -199,7 +201,7 @@ export default function Interests() {
 
         {/* favorite team */}
         <Animated.View entering={FadeInDown.delay(200).duration(600)} style={styles.teamBlock}>
-          <Text style={styles.fieldLabel}>Favorite team</Text>
+          <Text style={styles.fieldLabel}>{t.interestsTeamLabel}</Text>
 
           <Pressable
             style={[styles.teamPickerBtn, selectedTeam && styles.teamPickerBtnActive]}
@@ -238,7 +240,7 @@ export default function Interests() {
         <View style={styles.spacer} />
 
         <View style={styles.ctaBlock}>
-          <GlowButton label="Finish setup" onPress={() => finish(false)} loading={loading} />
+          <GlowButton label={t.interestsFinish} onPress={() => finish(false)} loading={loading} />
           <Pressable onPress={() => finish(true)} hitSlop={8} style={styles.skip}>
             <Text style={styles.skipLabel}>Skip for now</Text>
           </Pressable>

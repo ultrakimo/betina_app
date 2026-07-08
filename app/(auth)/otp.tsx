@@ -16,12 +16,14 @@ import BackButton from '../../src/components/BackButton';
 import ChatBubble from '../../src/components/ChatBubble';
 import GlowButton from '../../src/components/GlowButton';
 import ScreenBg from '../../src/components/ScreenBg';
+import { useI18n } from '../../src/lib/i18n';
 import { supabase } from '../../src/lib/supabase';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 const CODE_LENGTH = 6;
 
 export default function Otp() {
+  const { t } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { phone: rawPhone } = useLocalSearchParams<{ phone: string }>();
@@ -34,8 +36,8 @@ export default function Otp() {
 
   useEffect(() => {
     if (resendIn <= 0) return;
-    const t = setInterval(() => setResendIn((s) => s - 1), 1000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setResendIn((s) => s - 1), 1000);
+    return () => clearInterval(timer);
   }, [resendIn]);
 
   const verify = async () => {
@@ -108,9 +110,9 @@ export default function Otp() {
           </View>
 
           <Animated.View entering={FadeInDown.duration(600)} style={styles.headerBlock}>
-            <Text style={styles.title}>Enter the code</Text>
+            <Text style={styles.title}>{t.otpTitle}</Text>
             <Text style={styles.subtitle}>
-              We sent a {CODE_LENGTH}-digit code to <Text style={styles.phone}>{phone}</Text>
+              {t.otpSubtitle} <Text style={styles.phone}>{phone}</Text>
             </Text>
           </Animated.View>
 
@@ -154,13 +156,13 @@ export default function Otp() {
               </Text>
             ) : (
               <Pressable onPress={resend} hitSlop={8}>
-                <Text style={styles.resendTime}>Resend now</Text>
+                <Text style={styles.resendTime}>{t.otpResend}</Text>
               </Pressable>
             )}
           </View>
 
           <GlowButton
-            label="Verify"
+            label={t.otpVerify}
             onPress={verify}
             loading={loading}
             disabled={code.length < CODE_LENGTH}

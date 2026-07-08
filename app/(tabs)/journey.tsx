@@ -45,7 +45,7 @@ export default function Journey() {
         {/* header + XP */}
         <Animated.View entering={FadeInDown.duration(500)} style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.title}>t.journeyTitle</Text>
+            <Text style={styles.title}>{t.journeyTitle}</Text>
             <Text style={styles.subtitle}>Member since {memberSince}</Text>
           </View>
           <View style={styles.headerRight}>
@@ -100,7 +100,7 @@ export default function Journey() {
                       </Text>
                       {current && (
                         <View style={styles.currentPill}>
-                          <Text style={styles.currentPillLabel}>t.journeyCurrentTier</Text>
+                          <Text style={styles.currentPillLabel}>{t.journeyCurrentTier}</Text>
                         </View>
                       )}
                     </View>

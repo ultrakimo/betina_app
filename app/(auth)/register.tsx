@@ -18,6 +18,7 @@ import BackButton from '../../src/components/BackButton';
 import ChatBubble from '../../src/components/ChatBubble';
 import GlowButton from '../../src/components/GlowButton';
 import ScreenBg from '../../src/components/ScreenBg';
+import { langForCountry, useI18n } from '../../src/lib/i18n';
 import { supabase } from '../../src/lib/supabase';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
@@ -48,6 +49,7 @@ const COUNTRIES = [
 ];
 
 export default function Register() {
+  const { lang, setLang, t } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [name, setName] = useState('');
@@ -79,6 +81,7 @@ export default function Register() {
         id: data.user.id,
         name: name.trim(),
         country: country.name,
+        language: lang,
         birthday: bday,
         vip_tier: 'INITIATE',
         xp_points: 100,
@@ -102,7 +105,12 @@ export default function Register() {
               renderItem={({ item }) => (
                 <Pressable
                   style={[styles.modalItem, item.code === country.code && styles.modalItemActive]}
-                  onPress={() => { setCountry(item); setPickerVisible(false); }}
+                  onPress={() => {
+                    setCountry(item);
+                    setPickerVisible(false);
+                    const detected = langForCountry(item.code);
+                    if (detected) setLang(detected);
+                  }}
                 >
                   <Text style={styles.modalFlag}>{item.flag}</Text>
                   <Text style={styles.modalCountryName}>{item.name}</Text>
@@ -134,13 +142,13 @@ export default function Register() {
           </View>
 
           <Animated.View entering={FadeInDown.duration(600)} style={styles.headerBlock}>
-            <Text style={styles.title}>Create your account</Text>
+            <Text style={styles.title}>{t.registerTitle}</Text>
             <Text style={styles.subtitle}>Just the essentials — BETina handles the rest.</Text>
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(120).duration(600)} style={styles.form}>
             <View style={styles.field}>
-              <Text style={styles.fieldLabel}>Country</Text>
+              <Text style={styles.fieldLabel}>{t.registerCountry}</Text>
               <Pressable style={styles.selectRow} onPress={() => setPickerVisible(true)}>
                 <View style={styles.selectLeft}>
                   <Text style={styles.flag}>{country.flag}</Text>
@@ -151,7 +159,7 @@ export default function Register() {
             </View>
 
             <View style={styles.field}>
-              <Text style={styles.fieldLabel}>Name</Text>
+              <Text style={styles.fieldLabel}>{t.registerName}</Text>
               <View style={styles.inputWrap}>
                 <TextInput
                   value={name}
@@ -166,23 +174,23 @@ export default function Register() {
           </Animated.View>
 
             <View style={styles.field}>
-              <Text style={styles.fieldLabel}>Birthday</Text>
+              <Text style={styles.fieldLabel}>{t.registerBirthday}</Text>
               <View style={styles.birthdayRow}>
                 <View style={[styles.birthdayBox, { flex: 1 }]}>
                   <TextInput value={day}
-                    onChangeText={(t) => { setDay(t.replace(/\D/g,'').slice(0,2)); setBirthdayError(null); }}
+                    onChangeText={(v) => { setDay(v.replace(/\D/g,'').slice(0,2)); setBirthdayError(null); }}
                     placeholder="DD" placeholderTextColor="#55556A"
                     keyboardType="number-pad" maxLength={2} style={styles.birthdayInput} />
                 </View>
                 <View style={[styles.birthdayBox, { flex: 1 }]}>
                   <TextInput value={month}
-                    onChangeText={(t) => { setMonth(t.replace(/\D/g,'').slice(0,2)); setBirthdayError(null); }}
+                    onChangeText={(v) => { setMonth(v.replace(/\D/g,'').slice(0,2)); setBirthdayError(null); }}
                     placeholder="MM" placeholderTextColor="#55556A"
                     keyboardType="number-pad" maxLength={2} style={styles.birthdayInput} />
                 </View>
                 <View style={[styles.birthdayBox, { flex: 1.4 }]}>
                   <TextInput value={year}
-                    onChangeText={(t) => { setYear(t.replace(/\D/g,'').slice(0,4)); setBirthdayError(null); }}
+                    onChangeText={(v) => { setYear(v.replace(/\D/g,'').slice(0,4)); setBirthdayError(null); }}
                     placeholder="YYYY" placeholderTextColor="#55556A"
                     keyboardType="number-pad" maxLength={4} style={styles.birthdayInput} />
                 </View>
@@ -206,7 +214,7 @@ export default function Register() {
           )}
 
           <GlowButton
-            label="Continue"
+            label={t.continueBtn}
             onPress={continueSetup}
             disabled={!name.trim() || !day || !month || !year}
             loading={loading}

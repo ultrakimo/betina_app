@@ -29,7 +29,7 @@ const SPORT_TO_BBC: Record<string, string> = {
   golf: 'golf', nfl: 'sport', mma: 'sport', esports: 'sport',
 };
 
-type NewsItem = { title: string; description: string; link: string; pubDate: string };
+type NewsItem = { title: string; description: string; link: string; pubDate: string; image?: string };
 type MatchEvent = { id: string; name: string; home: string; away: string; homeScore: string | null; awayScore: string | null; date: string; time: string; league: string };
 
 function timeAgo(dateStr: string) {
@@ -127,7 +127,7 @@ export default function Live() {
       >
         {/* Header */}
         <Animated.View entering={FadeInDown.duration(500)} style={styles.header}>
-          <Text style={styles.title}>t.liveTitle</Text>
+          <Text style={styles.title}>{t.liveTitle}</Text>
           <Pressable onPress={() => router.push('/notifications')} style={styles.bell}>
             <Text style={styles.bellEmoji}>🔔</Text>
             <View style={styles.bellDot} />
@@ -145,7 +145,7 @@ export default function Live() {
               <>
                 {nextEvents.length > 0 && (
                   <GlowCard style={styles.matchCard}>
-                    <Text style={styles.matchLabel}>t.liveUpcoming</Text>
+                    <Text style={styles.matchLabel}>{t.liveUpcoming}</Text>
                     {nextEvents.slice(0, 3).map((e) => (
                       <View key={e.id} style={styles.matchRow}>
                         <View style={styles.matchTeams}>
@@ -164,7 +164,7 @@ export default function Live() {
 
                 {lastEvents.length > 0 && (
                   <GlowCard style={styles.matchCard}>
-                    <Text style={styles.matchLabel}>t.liveResults</Text>
+                    <Text style={styles.matchLabel}>{t.liveResults}</Text>
                     {lastEvents.slice(0, 3).map((e) => (
                       <View key={e.id} style={styles.matchRow}>
                         <View style={styles.matchTeams}>
@@ -213,7 +213,7 @@ export default function Live() {
             <ActivityIndicator color={Colors.primary} style={{ marginTop: 16 }} />
           ) : news.length === 0 ? (
             <GlowCard style={styles.emptyCard}>
-              <Text style={styles.emptyText}>t.liveNoNews</Text>
+              <Text style={styles.emptyText}>{t.liveNoNews}</Text>
             </GlowCard>
           ) : (
             <>
@@ -229,7 +229,7 @@ export default function Live() {
                       </View>
                     )}
                     <View style={styles.featuredBadge}>
-                      <Text style={styles.featuredBadgeText}>t.liveTopStory</Text>
+                      <Text style={styles.featuredBadgeText}>{t.liveTopStory}</Text>
                     </View>
                     <View style={styles.featuredContent}>
                       <Text style={styles.featuredTitle} numberOfLines={3}>{news[0].title}</Text>

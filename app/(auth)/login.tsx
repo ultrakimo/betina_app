@@ -1,4 +1,4 @@
-import { useI18n } from '../../src/lib/i18n';
+import { langForDialCode, useI18n } from '../../src/lib/i18n';
 import React, { useState } from 'react';
 import {
   FlatList,
@@ -94,7 +94,12 @@ export default function Login() {
               renderItem={({ item }) => (
                 <Pressable
                   style={[styles.dialRow, item.code === dialEntry.code && item.country === dialEntry.country && styles.dialRowActive]}
-                  onPress={() => { setDialEntry(item); setDialPickerVisible(false); }}
+                  onPress={() => {
+                    setDialEntry(item);
+                    setDialPickerVisible(false);
+                    const detected = langForDialCode(item.code);
+                    if (detected) setLang(detected);
+                  }}
                 >
                   <Text style={styles.dialFlag}>{item.flag}</Text>
                   <Text style={styles.dialCountry}>{item.country}</Text>
@@ -119,15 +124,15 @@ export default function Login() {
           <Animated.View entering={FadeInDown.duration(700)} style={styles.header}>
             <BETinaAvatar size={88} />
             <View style={styles.headerText}>
-              <Text style={styles.title}>Welcome</Text>
+              <Text style={styles.title}>{t.welcomeTitle}</Text>
               <Text style={styles.subtitle}>
-                Enter your phone number to continue.{'\n'}New? We'll set you up right away.
+                {t.enterPhone}.{'\n'}{t.welcomeSubtitle}
               </Text>
             </View>
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(150).duration(700)} style={styles.field}>
-            <Text style={styles.fieldLabel}>Phone number</Text>
+            <Text style={styles.fieldLabel}>{t.phoneLabel}</Text>
             <View style={styles.phoneRow}>
               <Pressable style={styles.dialCode} onPress={() => setDialPickerVisible(true)}>
                 <Text style={styles.dialFlag}>{dialEntry.flag}</Text>
@@ -137,7 +142,7 @@ export default function Login() {
               <View style={styles.inputWrap}>
                 <TextInput
                   value={phone}
-                  onChangeText={(t) => { setPhone(t); setError(null); }}
+                  onChangeText={(v) => { setPhone(v); setError(null); }}
                   placeholder="664 123 45"
                   placeholderTextColor="#55556A"
                   keyboardType="phone-pad"
@@ -150,7 +155,7 @@ export default function Login() {
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(250).duration(700)} style={styles.ctaBlock}>
-            <GlowButton label="Send code" onPress={sendCode} loading={loading} />
+            <GlowButton label={t.continueBtn} onPress={sendCode} loading={loading} />
             <Text style={styles.terms}>
               By continuing you agree to the <Text style={styles.termsLink}>Terms</Text> &{' '}
               <Text style={styles.termsLink}>Privacy Policy</Text>

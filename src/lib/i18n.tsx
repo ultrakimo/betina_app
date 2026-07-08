@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export type LangCode = 'en' | 'de' | 'es' | 'pt' | 'fr' | 'it' | 'ro' | 'ar';
+export type LangCode = 'en' | 'de' | 'es' | 'pt' | 'fr' | 'it' | 'ro';
 
 export const LANGUAGES: { code: LangCode; label: string; flag: string; nativeName: string }[] = [
   { code: 'en', label: 'English',    flag: '🇬🇧', nativeName: 'English'    },
@@ -462,4 +462,38 @@ export function detectLang(locale: string): LangCode {
     de: 'de', es: 'es', pt: 'pt', fr: 'fr', it: 'it', ro: 'ro',
   };
   return map[short] ?? 'en';
+}
+
+// ── Country → language ───────────────────────────────────────────────────────
+// Used by onboarding: picking a country (register) or dial code (login)
+// switches the whole app to that country's language.
+
+const COUNTRY_LANG: Record<string, LangCode> = {
+  AT: 'de', DE: 'de', CH: 'de',
+  ES: 'es', MX: 'es', CO: 'es', AR: 'es', SV: 'es',
+  PT: 'pt', BR: 'pt', AO: 'pt',
+  FR: 'fr', SN: 'fr', GN: 'fr', CD: 'fr',
+  IT: 'it',
+  RO: 'ro',
+  GB: 'en', US: 'en', NG: 'en', TZ: 'en', KE: 'en', GH: 'en',
+};
+
+/** ISO-3166 alpha-2 country code → app language. Null = unknown, keep current. */
+export function langForCountry(iso2: string): LangCode | null {
+  return COUNTRY_LANG[iso2.toUpperCase()] ?? null;
+}
+
+const DIAL_LANG: Record<string, LangCode> = {
+  '+43': 'de', '+49': 'de', '+41': 'de',
+  '+34': 'es', '+52': 'es', '+57': 'es', '+54': 'es', '+503': 'es',
+  '+351': 'pt', '+55': 'pt', '+244': 'pt',
+  '+33': 'fr', '+221': 'fr', '+224': 'fr', '+243': 'fr',
+  '+39': 'it',
+  '+40': 'ro',
+  '+44': 'en', '+1': 'en', '+234': 'en', '+255': 'en', '+254': 'en', '+233': 'en',
+};
+
+/** Phone dial code → app language. Null = unknown, keep current. */
+export function langForDialCode(dial: string): LangCode | null {
+  return DIAL_LANG[dial] ?? null;
 }
