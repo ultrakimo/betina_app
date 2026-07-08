@@ -10,7 +10,7 @@ Kein echtes Geld wird in der App bewegt. Bets laufen auf der GeniusBet Website.
 - **Navigation:** Expo Router (file-based)
 - **Auth:** Supabase (Phone/OTP)
 - **Database:** Supabase
-- **AI/Chat:** Claude API (claude-sonnet-4-5)
+- **AI/Chat:** Claude API (claude-sonnet-5, offizielles @anthropic-ai/sdk)
 - **Animations:** React Native Reanimated 3 + Lottie
 - **Icons:** Expo Vector Icons / Lucide React Native
 - **Language:** TypeScript (strict)

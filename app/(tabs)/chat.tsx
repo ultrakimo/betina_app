@@ -26,6 +26,7 @@ import ChatBubble from '../../src/components/ChatBubble';
 import GlowCard from '../../src/components/GlowCard';
 import ScreenBg from '../../src/components/ScreenBg';
 import { askBetina } from '../../src/lib/claude';
+import { supabase } from '../../src/lib/supabase';
 import { useProfile } from '../../src/hooks/useProfile';
 import { useI18n } from '../../src/lib/i18n';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
@@ -63,16 +64,63 @@ export default function Chat() {
   const quickReplies = [t.chatQuick1, t.chatQuick2, t.chatQuick3];
   const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
 
+  // Load the persisted conversation from Supabase once on mount
   useEffect(() => {
-    // Only (re)seed the welcome message while the chat is still untouched,
-    // so a language switch doesn't wipe an ongoing conversation.
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data } = await supabase
+            .from('chat_messages')
+            .select('id, role, content')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: true })
+            .limit(50);
+          if (data && data.length > 0) {
+            setMessages(
+              data.map((r) => ({
+                id: r.id,
+                role: r.role as 'user' | 'assistant',
+                content: r.content,
+              })),
+            );
+          }
+        }
+      } catch {
+        // offline / demo — start with a fresh chat
+      } finally {
+        setHistoryLoaded(true);
+      }
+    })();
+  }, []);
+
+  // Seed (or re-localize on language switch) the welcome bubble while the
+  // chat is still untouched — never wipe a real conversation.
+  useEffect(() => {
+    if (!historyLoaded) return;
     setMessages((prev) =>
-      prev.length <= 1
+      prev.length === 0 || (prev.length === 1 && prev[0].id === 'm1')
         ? [{ id: 'm1', role: 'assistant', content: t.chatWelcome.replace('{name}', userName) }]
         : prev,
     );
-  }, [userName, t]);
+  }, [historyLoaded, userName, t]);
+
+  // Fire-and-forget persistence; chat keeps working if Supabase is unreachable
+  const persist = (role: 'user' | 'assistant', content: string) => {
+    supabase.auth
+      .getUser()
+      .then(({ data }) => {
+        if (data.user) {
+          return supabase.from('chat_messages').insert({ user_id: data.user.id, role, content });
+        }
+      })
+      .then((res) => {
+        if (res?.error) console.warn('chat persist failed:', res.error.message);
+      })
+      .catch(() => {});
+  };
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
@@ -87,7 +135,18 @@ export default function Chat() {
     setTyping(true);
 
     const history = [...messages, userMsg].map(({ role, content }) => ({ role, content }));
-    const reply = await askBetina(history, userName, lang);
+    persist('user', trimmed);
+
+    const reply = await askBetina(history, {
+      name: userName,
+      lang,
+      team: profile?.favourite_team,
+      sport: profile?.favourite_sport,
+      tier: profile?.vip_tier,
+      xp: profile?.xp_points,
+      streakDays: profile?.streak_days,
+    });
+    persist('assistant', reply);
 
     setTyping(false);
     setMessages((prev) => [
