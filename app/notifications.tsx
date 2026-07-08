@@ -8,6 +8,7 @@ import GlowCard from '../src/components/GlowCard';
 import ScreenBg from '../src/components/ScreenBg';
 import SectionLabel from '../src/components/SectionLabel';
 import { demoNotifications, DemoNotification } from '../src/lib/demo';
+import { useI18n } from '../src/lib/i18n';
 import { Colors, Fonts, Spacing, Typography } from '../src/theme';
 
 function NotificationCard({ item, index }: { item: DemoNotification; index: number }) {
@@ -59,6 +60,7 @@ export default function Notifications() {
   const insets = useSafeAreaInsets();
   const [items, setItems] = useState(demoNotifications);
   const unreadCount = items.filter((n) => n.unread).length;
+  const { t } = useI18n();
   const sections: Array<'TODAY' | 'YESTERDAY'> = ['TODAY', 'YESTERDAY'];
 
   return (
@@ -74,26 +76,26 @@ export default function Notifications() {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <BackButton />
-            <Text style={styles.title}>Notifications</Text>
+            <Text style={styles.title}>{t.notifTitle}</Text>
           </View>
           <View style={styles.headerRight}>
             {unreadCount > 0 && (
               <View style={styles.newPill}>
-                <Text style={styles.newPillLabel}>{unreadCount} NEW</Text>
+                <Text style={styles.newPillLabel}>{unreadCount} {t.notifNew}</Text>
               </View>
             )}
             <Pressable
               onPress={() => setItems((prev) => prev.map((n) => ({ ...n, unread: false })))}
               hitSlop={8}
             >
-              <Text style={styles.markRead}>Mark all read</Text>
+              <Text style={styles.markRead}>{t.notifMarkRead}</Text>
             </Pressable>
           </View>
         </View>
 
         {sections.map((section) => (
           <View key={section} style={styles.section}>
-            <SectionLabel>{section}</SectionLabel>
+            <SectionLabel>{section === 'TODAY' ? t.notifToday : t.notifYesterday}</SectionLabel>
             {items
               .filter((n) => n.section === section)
               .map((item, i) => (

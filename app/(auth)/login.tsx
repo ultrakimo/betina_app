@@ -57,7 +57,7 @@ export default function Login() {
   const sendCode = async () => {
     const fullPhone = `${dialEntry.code}${phone.replace(/\s/g, '')}`;
     if (phone.replace(/\D/g, '').length < 6) {
-      setError("That number looks a bit short — mind checking it? 🤔");
+      setError(t.loginErrShort);
       return;
     }
     setLoading(true);
@@ -71,13 +71,13 @@ export default function Login() {
       const data = await res.json();
       setLoading(false);
       if (!res.ok || !data.success) {
-        setError(`Hmm, that didn't work. Please try again.`);
+        setError(t.loginErrFailed);
         return;
       }
       router.push({ pathname: '/(auth)/otp', params: { phone: encodeURIComponent(fullPhone) } });
     } catch (e) {
       setLoading(false);
-      setError(`Network error — please try again.`);
+      setError(t.loginErrNetwork);
     }
   };
 
@@ -87,7 +87,7 @@ export default function Login() {
       <Modal visible={dialPickerVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalSheet, { paddingBottom: insets.bottom + 16 }]}>
-            <Text style={styles.modalTitle}>Select country code</Text>
+            <Text style={styles.modalTitle}>{t.loginSelectDial}</Text>
             <FlatList
               data={DIAL_CODES}
               keyExtractor={(d) => d.code + d.country}
@@ -157,8 +157,8 @@ export default function Login() {
           <Animated.View entering={FadeInDown.delay(250).duration(700)} style={styles.ctaBlock}>
             <GlowButton label={t.continueBtn} onPress={sendCode} loading={loading} />
             <Text style={styles.terms}>
-              By continuing you agree to the <Text style={styles.termsLink}>Terms</Text> &{' '}
-              <Text style={styles.termsLink}>Privacy Policy</Text>
+              {t.termsAgree} <Text style={styles.termsLink}>{t.termsLink}</Text> &{' '}
+              <Text style={styles.termsLink}>{t.privacyLink}</Text>
             </Text>
           </Animated.View>
 

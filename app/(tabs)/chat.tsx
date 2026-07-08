@@ -38,18 +38,6 @@ type Message = {
   xpNote?: string;
 };
 
-function makeInitialMessages(name: string): Message[] {
-  return [
-    {
-      id: 'm1',
-      role: 'assistant',
-      content: `Hey ${name}! 👋 I'm BETina, your AI sports companion. Ask me anything — match previews, live scores, stats, or anything about your team.`,
-    },
-  ];
-}
-
-const QUICK_REPLIES = ['Show lineups', 'Head-to-head', 'Remind me'];
-
 function TypingDot({ delay }: { delay: number }) {
   const opacity = useSharedValue(0.3);
   useEffect(() => {
@@ -69,15 +57,22 @@ function TypingDot({ delay }: { delay: number }) {
 }
 
 export default function Chat() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { profile } = useProfile();
   const userName = profile?.name ?? 'friend';
+  const quickReplies = [t.chatQuick1, t.chatQuick2, t.chatQuick3];
   const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    setMessages(makeInitialMessages(userName));
-  }, [userName]);
+    // Only (re)seed the welcome message while the chat is still untouched,
+    // so a language switch doesn't wipe an ongoing conversation.
+    setMessages((prev) =>
+      prev.length <= 1
+        ? [{ id: 'm1', role: 'assistant', content: t.chatWelcome.replace('{name}', userName) }]
+        : prev,
+    );
+  }, [userName, t]);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
@@ -92,12 +87,12 @@ export default function Chat() {
     setTyping(true);
 
     const history = [...messages, userMsg].map(({ role, content }) => ({ role, content }));
-    const reply = await askBetina(history, userName);
+    const reply = await askBetina(history, userName, lang);
 
     setTyping(false);
     setMessages((prev) => [
       ...prev,
-      { id: `a${Date.now()}`, role: 'assistant', content: reply, xpNote: '+15 XP for chatting' },
+      { id: `a${Date.now()}`, role: 'assistant', content: reply, xpNote: t.chatXp },
     ]);
   };
 
@@ -119,7 +114,7 @@ export default function Chat() {
             <Text style={styles.headerName}>
               BET<Text style={styles.headerNameAccent}>ina</Text>
             </Text>
-            <Text style={styles.headerStatus}>online · watching El Clásico buildup</Text>
+            <Text style={styles.headerStatus}>{t.chatStatus}</Text>
           </View>
           <Pressable style={styles.headerMore}>
             <Text style={styles.headerMoreLabel}>⋯</Text>
@@ -132,7 +127,7 @@ export default function Chat() {
           contentContainerStyle={styles.messages}
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.timestamp}>TODAY, 19:42</Text>
+          <Text style={styles.timestamp}>{t.chatToday}</Text>
           {messages.map((msg) => (
             <Animated.View
               key={msg.id}
@@ -185,7 +180,7 @@ export default function Chat() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.quickReplies}
           >
-            {QUICK_REPLIES.map((qr) => (
+            {quickReplies.map((qr) => (
               <Pressable key={qr} onPress={() => send(qr)} style={styles.quickReply}>
                 <Text style={styles.quickReplyLabel}>{qr}</Text>
               </Pressable>
@@ -195,7 +190,7 @@ export default function Chat() {
             <TextInput
               value={input}
               onChangeText={setInput}
-              placeholder="Message BETina…"
+              placeholder={t.chatPlaceholder}
               placeholderTextColor="#55556A"
               style={styles.input}
               onSubmitEditing={() => send(input)}

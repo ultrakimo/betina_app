@@ -47,11 +47,11 @@ export default function Welcome() {
         <Animated.View entering={FadeInDown.delay(450).duration(900)} style={styles.rewards}>
           <GlowCard style={styles.rewardCard}>
             <AnimatedNumber value={100} prefix="+" suffix=" XP" style={styles.rewardValueGreen} delay={800} />
-            <Text style={styles.rewardLabel}>Starter bonus</Text>
+            <Text style={styles.rewardLabel}>{t.welcomeBonus}</Text>
           </GlowCard>
           <GlowCard style={styles.rewardCard}>
             <Text style={styles.rewardValue}>INITIATE</Text>
-            <Text style={styles.rewardLabel}>Your tier</Text>
+            <Text style={styles.rewardLabel}>{t.welcomeTier}</Text>
           </GlowCard>
         </Animated.View>
 

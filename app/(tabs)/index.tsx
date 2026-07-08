@@ -18,11 +18,11 @@ import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 const GENIUSBET_URL = 'https://geniusbet.com';
 
-function getGreeting(t: any) {
+function getGreeting(t: { homeMorning: string; homeAfternoon: string; homeEvening: string }) {
   const h = new Date().getHours();
-  if (h < 12) return 'Good morning,';
-  if (h < 18) return 'Good afternoon,';
-  return 'Good evening,';
+  if (h < 12) return t.homeMorning;
+  if (h < 18) return t.homeAfternoon;
+  return t.homeEvening;
 }
 
 function getTierInfo(xp: number) {
@@ -131,7 +131,7 @@ export default function Home() {
           <Pressable onPress={() => router.push('/(tabs)/chat')} style={styles.betinaSays}>
             <Text style={styles.betinaSaysText}>
               {betinaSays}{' '}
-              <Text style={styles.betinaSaysLink}>Ask me →</Text>
+              <Text style={styles.betinaSaysLink}>{t.homeAskMe}</Text>
             </Text>
           </Pressable>
         </Animated.View>
@@ -147,7 +147,7 @@ export default function Home() {
                 </View>
                 {next && (
                   <Text style={styles.xpNext}>
-                    {next.minXp - xp} XP to{' '}
+                    {next.minXp - xp} {t.homeXpTo}{' '}
                     <Text style={styles.xpNextTier}>{next.name}</Text>
                   </Text>
                 )}
@@ -164,9 +164,9 @@ export default function Home() {
         {/* today's events */}
         <Animated.View entering={FadeInDown.delay(260).duration(500)} style={styles.eventsBlock}>
           <View style={styles.sectionRow}>
-            <Text style={styles.sectionTitle}>Today's events</Text>
+            <Text style={styles.sectionTitle}>{t.homeTodaysEvents}</Text>
             <Pressable onPress={() => router.push('/(tabs)/live')} hitSlop={8}>
-              <Text style={styles.sectionLink}>See all</Text>
+              <Text style={styles.sectionLink}>{t.homeSeeAll}</Text>
             </Pressable>
           </View>
 
@@ -202,7 +202,7 @@ export default function Home() {
         {/* Open GeniusBet CTA */}
         <Animated.View entering={FadeInDown.delay(340).duration(500)}>
           <GlowButton
-            label="Open GeniusBet"
+            label={t.homeOpenGB}
             onPress={() => WebBrowser.openBrowserAsync(GENIUSBET_URL)}
             leftElement={
               <Image

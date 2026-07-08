@@ -66,11 +66,11 @@ export default function Register() {
     setBirthdayError(null);
     const d = parseInt(day), m = parseInt(month), y = parseInt(year);
     if (!day || !month || !year || isNaN(d) || isNaN(m) || isNaN(y) || y < 1900) {
-      setBirthdayError('Please enter your full birthday.');
+      setBirthdayError(t.registerErrBirthday);
       return;
     }
     if (new Date().getFullYear() - y < 18) {
-      setBirthdayError('You must be 18 or older to use BETina.');
+      setBirthdayError(t.registerErr18);
       return;
     }
     const bday = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
@@ -98,7 +98,7 @@ export default function Register() {
       <Modal visible={pickerVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalSheet, { paddingBottom: insets.bottom + 16 }]}>
-            <Text style={styles.modalTitle}>Select country</Text>
+            <Text style={styles.modalTitle}>{t.registerSelectCountry}</Text>
             <FlatList
               data={COUNTRIES}
               keyExtractor={(c) => c.code}
@@ -143,7 +143,7 @@ export default function Register() {
 
           <Animated.View entering={FadeInDown.duration(600)} style={styles.headerBlock}>
             <Text style={styles.title}>{t.registerTitle}</Text>
-            <Text style={styles.subtitle}>Just the essentials — BETina handles the rest.</Text>
+            <Text style={styles.subtitle}>{t.registerSubtitle}</Text>
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(120).duration(600)} style={styles.form}>
@@ -206,7 +206,7 @@ export default function Register() {
             <Animated.View entering={FadeInDown.duration(400)} style={styles.hintRow}>
               <ChatBubble role="assistant">
                 <Text style={styles.hintText}>
-                  Nice to meet you, {name.trim()}! Your journey starts at{' '}
+                  {t.registerHint.replace('{name}', name.trim())}{' '}
                   <Text style={styles.hintAccent}>INITIATE</Text>.
                 </Text>
               </ChatBubble>

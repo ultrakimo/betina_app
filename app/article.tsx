@@ -13,6 +13,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { useI18n } from '../src/lib/i18n';
 import { Colors, Fonts, Spacing, Typography } from '../src/theme';
 
 const { width: W, height: H } = Dimensions.get('window');
@@ -41,6 +42,7 @@ function formatDate(rssDate: string) {
 }
 
 export default function ArticleScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { url, title: paramTitle, pubDate } = useLocalSearchParams<{
@@ -68,16 +70,16 @@ export default function ArticleScreen() {
       {loading && (
         <View style={styles.center}>
           <ActivityIndicator color={Colors.primary} size="large" />
-          <Text style={styles.loadingText}>Loading…</Text>
+          <Text style={styles.loadingText}>{t.articleLoading}</Text>
         </View>
       )}
 
       {error && (
         <View style={styles.center}>
           <Text style={{ fontSize: 48 }}>📡</Text>
-          <Text style={styles.errorText}>Couldn't load this article</Text>
+          <Text style={styles.errorText}>{t.articleError}</Text>
           <Pressable onPress={() => router.back()} style={styles.retryBtn}>
-            <Text style={styles.retryLabel}>← Go back</Text>
+            <Text style={styles.retryLabel}>← {t.articleBack}</Text>
           </Pressable>
         </View>
       )}

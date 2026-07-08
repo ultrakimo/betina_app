@@ -6,20 +6,20 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import GlowCard from '../../src/components/GlowCard';
 import ScreenBg from '../../src/components/ScreenBg';
 import { useProfile } from '../../src/hooks/useProfile';
-import { useI18n } from '../../src/lib/i18n';
+import { SPORT_KEYS, useI18n } from '../../src/lib/i18n';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 const API = 'https://intelligence.geniusbet.com';
 
 const ALL_SPORT_TABS = [
-  { id: 'football',   label: '⚽ Football' },
-  { id: 'tennis',     label: '🎾 Tennis' },
-  { id: 'basketball', label: '🏀 Basketball' },
-  { id: 'cricket',    label: '🏏 Cricket' },
-  { id: 'rugby',      label: '🏉 Rugby' },
-  { id: 'athletics',  label: '🏃 Athletics' },
-  { id: 'golf',       label: '⛳ Golf' },
-  { id: 'sport',      label: '🌍 All Sports' },
+  { id: 'football',   emoji: '⚽' },
+  { id: 'tennis',     emoji: '🎾' },
+  { id: 'basketball', emoji: '🏀' },
+  { id: 'cricket',    emoji: '🏏' },
+  { id: 'rugby',      emoji: '🏉' },
+  { id: 'athletics',  emoji: '🏃' },
+  { id: 'golf',       emoji: '⛳' },
+  { id: 'sport',      emoji: '🌍' },
 ];
 
 // Map app sport IDs to BBC feed IDs
@@ -32,12 +32,12 @@ const SPORT_TO_BBC: Record<string, string> = {
 type NewsItem = { title: string; description: string; link: string; pubDate: string; image?: string };
 type MatchEvent = { id: string; name: string; home: string; away: string; homeScore: string | null; awayScore: string | null; date: string; time: string; league: string };
 
-function timeAgo(dateStr: string) {
+function timeAgo(dateStr: string, t: { liveJustNow: string; liveAgoHours: string; liveAgoDays: string }) {
   const d = new Date(dateStr);
   const diff = (Date.now() - d.getTime()) / 1000 / 60 / 60;
-  if (diff < 1) return 'Just now';
-  if (diff < 24) return `${Math.floor(diff)}h ago`;
-  return `${Math.floor(diff / 24)}d ago`;
+  if (diff < 1) return t.liveJustNow;
+  if (diff < 24) return t.liveAgoHours.replace('{n}', String(Math.floor(diff)));
+  return t.liveAgoDays.replace('{n}', String(Math.floor(diff / 24)));
 }
 
 function formatMatchDate(dateStr: string, timeStr: string) {
@@ -193,13 +193,15 @@ export default function Live() {
         {/* Sport tab pills */}
         <Animated.View entering={FadeInDown.delay(100).duration(500)}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
-            {activeTabs.map((t) => (
+            {activeTabs.map((tab) => (
               <Pressable
-                key={t.id}
-                onPress={() => setSport(t.id)}
-                style={[styles.tab, sport === t.id && styles.tabActive]}
+                key={tab.id}
+                onPress={() => setSport(tab.id)}
+                style={[styles.tab, sport === tab.id && styles.tabActive]}
               >
-                <Text style={[styles.tabLabel, sport === t.id && styles.tabLabelActive]}>{t.label}</Text>
+                <Text style={[styles.tabLabel, sport === tab.id && styles.tabLabelActive]}>
+                  {tab.emoji} {SPORT_KEYS[tab.id] ? t[SPORT_KEYS[tab.id]] : tab.id}
+                </Text>
               </Pressable>
             ))}
           </ScrollView>
@@ -207,7 +209,7 @@ export default function Live() {
 
         {/* News */}
         <Animated.View entering={FadeInDown.delay(150).duration(500)} style={styles.section}>
-          <Text style={styles.sectionTitle}>📰 Latest News</Text>
+          <Text style={styles.sectionTitle}>📰 {t.liveLatestNews}</Text>
 
           {loadingNews ? (
             <ActivityIndicator color={Colors.primary} style={{ marginTop: 16 }} />
@@ -233,7 +235,7 @@ export default function Live() {
                     </View>
                     <View style={styles.featuredContent}>
                       <Text style={styles.featuredTitle} numberOfLines={3}>{news[0].title}</Text>
-                      <Text style={styles.newsTime}>{timeAgo(news[0].pubDate)} · BBC Sport</Text>
+                      <Text style={styles.newsTime}>{timeAgo(news[0].pubDate, t)} · BBC Sport</Text>
                     </View>
                   </GlowCard>
                 </Pressable>
@@ -247,7 +249,7 @@ export default function Live() {
                     )}
                     <View style={styles.newsBody}>
                       <Text style={styles.newsTitle} numberOfLines={2}>{item.title}</Text>
-                      <Text style={styles.newsTime}>{timeAgo(item.pubDate)} · BBC Sport</Text>
+                      <Text style={styles.newsTime}>{timeAgo(item.pubDate, t)} · BBC Sport</Text>
                     </View>
                   </GlowCard>
                 </Pressable>

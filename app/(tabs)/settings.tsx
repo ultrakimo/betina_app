@@ -98,7 +98,7 @@ export default function Settings() {
 
         {/* General */}
         <Animated.View entering={FadeInDown.delay(140).duration(500)} style={styles.section}>
-          <SectionLabel>GENERAL</SectionLabel>
+          <SectionLabel>{t.settingsGeneral}</SectionLabel>
           <GlowCard>
             <Row
               emoji="🌐"
@@ -106,27 +106,27 @@ export default function Settings() {
               value={`${currentLangInfo.flag} ${currentLangInfo.nativeName}`}
               onPress={() => { setSelectedLang(lang); setLangModalOpen(true); }}
             />
-            <Row emoji="🎨" label="Appearance" value="Dark" last />
+            <Row emoji="🎨" label={t.settingsAppearance} value={t.settingsDark} last />
           </GlowCard>
         </Animated.View>
 
         {/* Notifications */}
         <Animated.View entering={FadeInDown.delay(200).duration(500)} style={styles.section}>
-          <SectionLabel>PUSH NOTIFICATIONS</SectionLabel>
+          <SectionLabel>{t.settingsPush}</SectionLabel>
           <GlowCard>
-            <Row emoji="⚽" label="Event reminders" right={<Toggle value={eventReminders} onValueChange={setEventReminders} />} />
-            <Row emoji="💬" label="Messages from BETina" right={<Toggle value={betinaMessages} onValueChange={setBetinaMessages} />} />
-            <Row emoji="🏆" label="Tier & XP updates" right={<Toggle value={tierUpdates} onValueChange={setTierUpdates} />} last />
+            <Row emoji="⚽" label={t.settingsEventReminders} right={<Toggle value={eventReminders} onValueChange={setEventReminders} />} />
+            <Row emoji="💬" label={t.settingsBetinaMsgs} right={<Toggle value={betinaMessages} onValueChange={setBetinaMessages} />} />
+            <Row emoji="🏆" label={t.settingsTierUpdates} right={<Toggle value={tierUpdates} onValueChange={setTierUpdates} />} last />
           </GlowCard>
         </Animated.View>
 
         {/* Support */}
         <Animated.View entering={FadeInDown.delay(260).duration(500)} style={styles.section}>
-          <SectionLabel>SUPPORT</SectionLabel>
+          <SectionLabel>{t.settingsSupport}</SectionLabel>
           <GlowCard>
-            <Row emoji="💡" label="Help & support" onPress={() => {}} />
-            <Row emoji="🛡️" label="Responsible gaming" right={<Text style={styles.externalHint}>↗</Text>} onPress={() => WebBrowser.openBrowserAsync(RESPONSIBLE_GAMING_URL)} />
-            <Row emoji="📄" label="Terms & Privacy" onPress={() => {}} last />
+            <Row emoji="💡" label={t.settingsHelp} onPress={() => {}} />
+            <Row emoji="🛡️" label={t.settingsResponsible} right={<Text style={styles.externalHint}>↗</Text>} onPress={() => WebBrowser.openBrowserAsync(RESPONSIBLE_GAMING_URL)} />
+            <Row emoji="📄" label={t.settingsTermsPrivacy} onPress={() => {}} last />
           </GlowCard>
         </Animated.View>
 

@@ -54,7 +54,7 @@ export default function Otp() {
       setLoading(false);
       if (!res.ok || data.error) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-        setError(`That code didn't match — try again? 🔐`);
+        setError(t.otpErrWrong);
         return;
       }
       // Set session in Supabase client
@@ -149,10 +149,10 @@ export default function Otp() {
           {error && <Text style={styles.error}>{error}</Text>}
 
           <View style={styles.resendRow}>
-            <Text style={styles.resendHint}>Didn't get it?</Text>
+            <Text style={styles.resendHint}>{t.otpNoCode}</Text>
             {resendIn > 0 ? (
               <Text style={styles.resendWait}>
-                Resend in <Text style={styles.resendTime}>0:{String(resendIn).padStart(2, '0')}</Text>
+                {t.otpResendIn} <Text style={styles.resendTime}>0:{String(resendIn).padStart(2, '0')}</Text>
               </Text>
             ) : (
               <Pressable onPress={resend} hitSlop={8}>
@@ -172,7 +172,7 @@ export default function Otp() {
           <View style={styles.flex} />
 
           <View style={styles.hintRow}>
-            <ChatBubble role="assistant">Almost there — one code and we're in. 🔐</ChatBubble>
+            <ChatBubble role="assistant">{t.otpHint}</ChatBubble>
           </View>
         </View>
       </KeyboardAvoidingView>

@@ -8,9 +8,11 @@ import GlowCard from '../src/components/GlowCard';
 import ScreenBg from '../src/components/ScreenBg';
 import XPBar from '../src/components/XPBar';
 import { demoProfile, tiers } from '../src/lib/demo';
+import { useI18n } from '../src/lib/i18n';
 import { Colors, Fonts, Spacing, Typography } from '../src/theme';
 
 export default function Tiers() {
+  const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const currentIndex = tiers.findIndex((t) => t.name === demoProfile.tier);
   const progress = demoProfile.xp / demoProfile.xpForNextTier;
@@ -28,8 +30,8 @@ export default function Tiers() {
         <View style={styles.topBar}>
           <BackButton />
           <View style={styles.topText}>
-            <Text style={styles.title}>VIP Tiers</Text>
-            <Text style={styles.subtitle}>Earn XP by staying active — never by spending.</Text>
+            <Text style={styles.title}>{t.tiersTitle}</Text>
+            <Text style={styles.subtitle}>{t.tiersSubtitle}</Text>
           </View>
         </View>
 
@@ -69,14 +71,14 @@ export default function Tiers() {
                       </Text>
                       {current && (
                         <View style={styles.currentPill}>
-                          <Text style={styles.currentPillLabel}>CURRENT</Text>
+                          <Text style={styles.currentPillLabel}>{t.journeyCurrentTier}</Text>
                         </View>
                       )}
                     </View>
                     <Text style={styles.tierRange}>
                       {tier.maxXp
                         ? `${tier.minXp.toLocaleString('en-US')} – ${tier.maxXp.toLocaleString('en-US')} XP`
-                        : `${tier.minXp.toLocaleString('en-US')}+ XP · the top 1%`}
+                        : `${tier.minXp.toLocaleString('en-US')}+ XP · ${t.tiersTop1}`}
                     </Text>
                   </View>
                   <View style={styles.cashback}>
@@ -89,7 +91,7 @@ export default function Tiers() {
                     >
                       {tier.cashback}
                     </Text>
-                    <Text style={styles.cashbackLabel}>CASHBACK</Text>
+                    <Text style={styles.cashbackLabel}>{t.tiersCashback}</Text>
                   </View>
                 </View>
                 {current && (
@@ -112,8 +114,7 @@ export default function Tiers() {
         <Animated.View entering={FadeInDown.delay(500).duration(450)} style={styles.note}>
           <BETinaAvatar size={32} />
           <Text style={styles.noteText}>
-            Cashback is redeemed on GeniusBet — XP here comes from activity, streaks and chats.
-            Never from spending.
+            {t.tiersNote}
           </Text>
         </Animated.View>
       </ScrollView>

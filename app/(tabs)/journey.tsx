@@ -46,11 +46,11 @@ export default function Journey() {
         <Animated.View entering={FadeInDown.duration(500)} style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>{t.journeyTitle}</Text>
-            <Text style={styles.subtitle}>Member since {memberSince}</Text>
+            <Text style={styles.subtitle}>{t.journeyMember} {memberSince}</Text>
           </View>
           <View style={styles.headerRight}>
             <AnimatedNumber value={xp} style={styles.xpValue} />
-            <Text style={styles.xpLabel}>TOTAL XP</Text>
+            <Text style={styles.xpLabel}>{t.journeyTotalXp}</Text>
           </View>
         </Animated.View>
 
@@ -110,14 +110,14 @@ export default function Journey() {
                         <Text style={styles.tierMeta}>
                           {xp.toLocaleString('en-US')} /{' '}
                           {xpForNextTier.toLocaleString('en-US')} XP ·{' '}
-                          {xpForNextTier - xp} t.journeyToNext
+                          {xpForNextTier - xp} {t.journeyToNext}
                         </Text>
                       </View>
                     ) : (
                       <Text style={styles.tierMeta}>
                         {done
-                          ? `${tier.minXp.toLocaleString('en-US')} XP · completed`
-                          : `${tier.minXp.toLocaleString('en-US')} XP${tier.gold ? ' · the top 1%' : ''}`}
+                          ? `${tier.minXp.toLocaleString('en-US')} XP · ${t.journeyCompleted}`
+                          : `${tier.minXp.toLocaleString('en-US')} XP${tier.gold ? ` · ${t.tiersTop1}` : ''}`}
                       </Text>
                     )}
                   </View>
@@ -131,11 +131,11 @@ export default function Journey() {
         <Animated.View entering={FadeInDown.delay(220).duration(500)} style={styles.grid}>
           <GlowCard style={styles.statCard}>
             <Text style={styles.statValue}>🔥 {streakDays}</Text>
-            <Text style={styles.statLabel}>Day streak</Text>
+            <Text style={styles.statLabel}>{t.journeyDayStreak}</Text>
           </GlowCard>
           <GlowCard style={styles.statCard}>
             <AnimatedNumber value={0} style={styles.statValue} format={false} />
-            <Text style={styles.statLabel}>Chats with BETina</Text>
+            <Text style={styles.statLabel}>{t.journeyChats}</Text>
           </GlowCard>
           <GlowCard style={styles.statCard}>
             <AnimatedNumber
@@ -143,22 +143,22 @@ export default function Journey() {
               style={styles.statValue}
               format={false}
             />
-            <Text style={styles.statLabel}>Events followed</Text>
+            <Text style={styles.statLabel}>{t.journeyEventsFollowed}</Text>
           </GlowCard>
           <GlowCard style={styles.statCard}>
             <Text style={styles.statValueGold}>🏅 {0}</Text>
-            <Text style={styles.statLabel}>Achievements</Text>
+            <Text style={styles.statLabel}>{t.journeyAchievements}</Text>
           </GlowCard>
           <GlowCard style={styles.statCard}>
             <Text style={styles.statValue}>⚽ {sport ?? '—'}</Text>
-            <Text style={styles.statLabel}>Favourite sport</Text>
+            <Text style={styles.statLabel}>{t.journeyFavSport}</Text>
           </GlowCard>
           <GlowCard style={styles.statCard}>
             <View style={styles.teamRow}>
               <TeamBadge short="FCB" size={24} />
               <Text style={styles.teamValue}>{team ?? '—'}</Text>
             </View>
-            <Text style={styles.statLabel}>Top team</Text>
+            <Text style={styles.statLabel}>{t.journeyTopTeam}</Text>
           </GlowCard>
           <GlowCard style={[styles.statCard, styles.statCardWide]}>
             <View style={styles.activeDaysRow}>
@@ -168,10 +168,10 @@ export default function Journey() {
                 format={false}
               />
               <Text style={styles.activeDaysMeta}>
-                of {0} days since joining
+                {t.journeyOfDays.replace('{n}', '0')}
               </Text>
             </View>
-            <Text style={styles.statLabel}>Active days</Text>
+            <Text style={styles.statLabel}>{t.journeyActiveDays}</Text>
           </GlowCard>
         </Animated.View>
       </ScrollView>

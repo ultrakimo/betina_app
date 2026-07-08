@@ -19,7 +19,7 @@ import BackButton from '../../src/components/BackButton';
 import GlowButton from '../../src/components/GlowButton';
 import ScreenBg from '../../src/components/ScreenBg';
 import { sports } from '../../src/lib/demo';
-import { useI18n } from '../../src/lib/i18n';
+import { SPORT_KEYS, useI18n } from '../../src/lib/i18n';
 import { supabase } from '../../src/lib/supabase';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
@@ -107,7 +107,7 @@ export default function Interests() {
       <Modal visible={teamPickerVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalSheet, { paddingBottom: insets.bottom + 16 }]}>
-            <Text style={styles.modalTitle}>Search your team</Text>
+            <Text style={styles.modalTitle}>{t.interestsSearchTitle}</Text>
 
             <View style={styles.searchWrap}>
               <TextInput
@@ -124,7 +124,7 @@ export default function Interests() {
             </View>
 
             {teamResults.length === 0 && teamQuery.length >= 2 && !searching && (
-              <Text style={styles.noResults}>No teams found — try another name</Text>
+              <Text style={styles.noResults}>{t.interestsNoTeams}</Text>
             )}
 
             <FlatList
@@ -191,7 +191,7 @@ export default function Interests() {
                 style={[styles.chip, active && styles.chipActive]}
               >
                 <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>
-                  {sport.emoji} {sport.label}
+                  {sport.emoji} {SPORT_KEYS[sport.id] ? t[SPORT_KEYS[sport.id]] : sport.label}
                 </Text>
                 {active && <Text style={styles.chipCheck}>✓</Text>}
               </Pressable>
@@ -225,14 +225,14 @@ export default function Interests() {
                 </View>
               </View>
             ) : (
-              <Text style={styles.teamPickerPlaceholder}>🔍  Search any team in any sport...</Text>
+              <Text style={styles.teamPickerPlaceholder}>🔍  {t.interestsSearchPlaceholder}</Text>
             )}
             <Text style={styles.caret}>▾</Text>
           </Pressable>
 
           {selectedTeam && (
             <Text style={styles.teamHint}>
-              BETina will track every {selectedTeam.strTeam} match for you.
+              {t.interestsTrack.replace('{team}', selectedTeam.strTeam)}
             </Text>
           )}
         </Animated.View>
@@ -242,7 +242,7 @@ export default function Interests() {
         <View style={styles.ctaBlock}>
           <GlowButton label={t.interestsFinish} onPress={() => finish(false)} loading={loading} />
           <Pressable onPress={() => finish(true)} hitSlop={8} style={styles.skip}>
-            <Text style={styles.skipLabel}>Skip for now</Text>
+            <Text style={styles.skipLabel}>{t.interestsSkip}</Text>
           </Pressable>
         </View>
       </ScrollView>
