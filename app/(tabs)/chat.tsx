@@ -26,6 +26,7 @@ import ChatBubble from '../../src/components/ChatBubble';
 import GlowCard from '../../src/components/GlowCard';
 import ScreenBg from '../../src/components/ScreenBg';
 import { askBetina } from '../../src/lib/claude';
+import { fetchMemories } from '../../src/lib/memory';
 import { LiveContext, fetchLiveContext, parseSports } from '../../src/lib/sports';
 import { supabase } from '../../src/lib/supabase';
 import { useProfile } from '../../src/hooks/useProfile';
@@ -125,7 +126,15 @@ export default function Chat() {
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const [live, setLive] = useState<LiveContext | null>(null);
+  const [memories, setMemories] = useState<string[]>([]);
   const scrollRef = useRef<ScrollView>(null);
+
+  // Load what BETina remembers about the player, once on mount.
+  useEffect(() => {
+    let active = true;
+    fetchMemories().then((m) => { if (active) setMemories(m); });
+    return () => { active = false; };
+  }, []);
 
   // Pull the real fixtures/results/headlines once the profile is known, so
   // BETina can answer with concrete data instead of "I can't see live info".
@@ -163,6 +172,7 @@ export default function Chat() {
       xp: profile?.xp_points,
       streakDays: profile?.streak_days,
       live,
+      memories,
     });
     persist('assistant', reply);
 

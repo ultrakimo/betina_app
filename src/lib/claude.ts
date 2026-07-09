@@ -8,6 +8,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import type { LangCode } from './i18n';
+import { saveMemory, setReminder } from './memory';
 import {
   fetchNews,
   fetchTeamLast,
@@ -40,6 +41,7 @@ export type BetinaContext = {
   xp?: number | null;
   streakDays?: number | null;
   live?: LiveContext | null; // real fixtures / results / headlines
+  memories?: string[]; // facts BETina has remembered about the player
 };
 
 const LANG_NAMES: Record<LangCode, string> = {
@@ -67,6 +69,13 @@ function liveDataBlock(live: LiveContext | null | undefined): string {
   if (!parts.length) return '';
   const today = new Date().toISOString().slice(0, 10);
   return `\n\nLIVE DATA (pulled from the app's sports feed, today is ${today}) — reference this to answer accurately, don't say you can't see data:\n${parts.join('\n')}`;
+}
+
+function memoryBlock(memories: string[] | undefined): string {
+  if (!memories || !memories.length) return '';
+  return `\n\nWHAT YOU REMEMBER about them (from past chats — weave in naturally, don't recite):\n${memories
+    .map((m) => `  • ${m}`)
+    .join('\n')}`;
 }
 
 function systemPrompt(ctx: BetinaContext): string {
@@ -98,7 +107,7 @@ Tone & style:
 - Address the player by name now and then, warmly — not in every message.
 
 About the player you're talking to:
-${facts}${liveDataBlock(ctx.live)}
+${facts}${memoryBlock(ctx.memories)}${liveDataBlock(ctx.live)}
 
 Rules:
 - Respond in ${LANG_NAMES[ctx.lang]} by default; if the player clearly writes in another language, match theirs.
@@ -107,6 +116,8 @@ Rules:
 - For ANYTHING beyond that — another team, another sport, more news, a specific matchup — use your tools to look it up live: search_team to get a team's id, then get_fixtures / get_results, and get_news for headlines. Never guess scores, dates or standings from memory; if it's not in LIVE DATA, look it up.
 - The only thing you truly can't get is minute-by-minute in-play scores of a match happening right now — for that, point them to the app's Live tab.
 - You cover every sport and team, not just theirs — be the expert companion who can pull up anything.
+- You have a memory: when the player shares a lasting fact or preference about themselves, quietly save it with remember_fact so you recall it next time (don't announce it every time). Use what you already remember to make it personal.
+- When they ask you to remind them of something, use set_reminder with a concrete future datetime, then confirm warmly ("Got it, I'll nudge you before kickoff 😏"). If the timing is unclear, ask.
 - NEVER promise wins, NEVER suggest chasing losses, NEVER pressure anyone to bet. Stay caring, not pushy.
 - No real money moves in this app — bets happen on the GeniusBet website only.`;
 }
@@ -216,6 +227,29 @@ const TOOLS: Anthropic.Tool[] = [
       required: [],
     },
   },
+  {
+    name: 'remember_fact',
+    description:
+      "Save a lasting fact or preference the player shares about themselves so you recall it in future chats (e.g. 'can only watch games after 8pm', 'also follows Real Madrid', 'hates spoilers', a birthday). Only save things worth remembering long-term, not small talk. Don't save the same fact twice.",
+    input_schema: {
+      type: 'object',
+      properties: { fact: { type: 'string', description: 'The fact to remember, short and in the third person' } },
+      required: ['fact'],
+    },
+  },
+  {
+    name: 'set_reminder',
+    description:
+      "Set a reminder for the player when they ask to be reminded of something ('remind me before the Heat game', 'remind me tomorrow to check transfers'). Work out a concrete future datetime from what they said and today's date; if it's tied to a match, use that fixture's date/time. If the time is genuinely unclear, ask them instead of guessing.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        text: { type: 'string', description: 'What to remind them about, in their language' },
+        datetime: { type: 'string', description: 'ISO 8601 datetime for when to remind, e.g. 2026-07-10T19:00:00' },
+      },
+      required: ['text', 'datetime'],
+    },
+  },
 ];
 
 function compactMatch(e: MatchEvent) {
@@ -245,6 +279,12 @@ async function runTool(name: string, input: Record<string, unknown>): Promise<st
     if (name === 'get_news') {
       const r = await fetchNews(String(input.sport ?? 'sport'), 8);
       return JSON.stringify(r.slice(0, 8).map((n) => n.title));
+    }
+    if (name === 'remember_fact') {
+      return await saveMemory(String(input.fact ?? ''));
+    }
+    if (name === 'set_reminder') {
+      return await setReminder(String(input.text ?? ''), String(input.datetime ?? ''));
     }
     return 'Unknown tool.';
   } catch {
