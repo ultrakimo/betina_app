@@ -10,6 +10,8 @@ export type Profile = {
   favourite_sport: string | null;
   favourite_sports: string | null;
   favourite_team_id: string | null;
+  favourite_team_sport: string | null;
+  favourite_team_league: string | null;
   country: string | null;
   created_at: string | null;
 };
@@ -28,7 +30,7 @@ export function useProfile() {
       setPhone(user.phone ? '+' + user.phone : null);
       const { data } = await supabase
         .from('profiles')
-        .select('name, vip_tier, xp_points, streak_days, favourite_team, favourite_sport, favourite_sports, favourite_team_id, country, created_at')
+        .select('name, vip_tier, xp_points, streak_days, favourite_team, favourite_sport, favourite_sports, favourite_team_id, favourite_team_sport, favourite_team_league, country, created_at')
         .eq('id', user.id)
         .maybeSingle();
       if (data) setProfile(data);

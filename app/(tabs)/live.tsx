@@ -7,6 +7,7 @@ import GlowCard from '../../src/components/GlowCard';
 import ScreenBg from '../../src/components/ScreenBg';
 import { useProfile } from '../../src/hooks/useProfile';
 import { SPORT_KEYS, useI18n } from '../../src/lib/i18n';
+import { mentionsTeam } from '../../src/lib/sports';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 const API = 'https://intelligence.geniusbet.com';
@@ -87,9 +88,16 @@ export default function Live() {
   const fetchNews = async () => {
     setLoadingNews(true);
     try {
-      const r = await fetch(`${API}/api/sports/news?sport=${sport}&count=10`);
+      const r = await fetch(`${API}/api/sports/news?sport=${sport}&count=12`);
       const d = await r.json();
-      setNews(d.items ?? []);
+      const items: NewsItem[] = d.items ?? [];
+      // Surface anything about the player's team first (source is sport-wide)
+      if (teamName) {
+        items.sort(
+          (a, b) => Number(mentionsTeam(b, teamName)) - Number(mentionsTeam(a, teamName)),
+        );
+      }
+      setNews(items);
     } finally {
       setLoadingNews(false);
     }

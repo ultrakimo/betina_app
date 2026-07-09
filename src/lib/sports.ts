@@ -59,6 +59,44 @@ export async function fetchNews(sport: string, count = 10): Promise<NewsItem[]> 
   }
 }
 
+// Team crest URLs by team id — resolved once from TheSportsDB, then cached.
+const badgeCache = new Map<string, string | null>();
+
+/** Team crest URL for a TheSportsDB team id (null if none). Cached per session. */
+export async function fetchTeamBadge(teamId: string): Promise<string | null> {
+  if (badgeCache.has(teamId)) return badgeCache.get(teamId) ?? null;
+  try {
+    const r = await fetch(`https://www.thesportsdb.com/api/v1/json/3/lookupteam.php?id=${teamId}`);
+    const d = await r.json();
+    const badge: string | null = d.teams?.[0]?.strBadge ?? d.teams?.[0]?.strLogo ?? null;
+    badgeCache.set(teamId, badge);
+    return badge;
+  } catch {
+    badgeCache.set(teamId, null);
+    return null;
+  }
+}
+
+/**
+ * Split a stored comma-separated sports string into clean ids.
+ * "football,tennis" → ["football", "tennis"]
+ */
+export function parseSports(raw?: string | null): string[] {
+  if (!raw) return [];
+  return raw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+}
+
+/** Does a news item mention the team (by full name or a distinctive word)? */
+export function mentionsTeam(item: NewsItem, teamName?: string | null): boolean {
+  if (!teamName) return false;
+  const hay = `${item.title} ${item.description}`.toLowerCase();
+  if (hay.includes(teamName.toLowerCase())) return true;
+  // also match the most distinctive word of the name (e.g. "Barcelona", "Heat")
+  const words = teamName.split(/\s+/).filter((w) => w.length >= 4);
+  const key = words.sort((a, b) => b.length - a.length)[0];
+  return key ? hay.includes(key.toLowerCase()) : false;
+}
+
 const SPORT_EMOJI: Record<string, string> = {
   football: '⚽',
   soccer: '⚽',

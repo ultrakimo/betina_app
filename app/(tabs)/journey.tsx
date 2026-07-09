@@ -7,8 +7,9 @@ import GlowCard from '../../src/components/GlowCard';
 import ScreenBg from '../../src/components/ScreenBg';
 import XPBar from '../../src/components/XPBar';
 import { tiers } from '../../src/lib/demo';
+import TeamCrest from '../../src/components/TeamCrest';
 import { SPORT_KEYS, useI18n } from '../../src/lib/i18n';
-import { sportEmoji } from '../../src/lib/sports';
+import { parseSports, sportEmoji } from '../../src/lib/sports';
 import { useProfile } from '../../src/hooks/useProfile';
 import { supabase } from '../../src/lib/supabase';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
@@ -38,10 +39,22 @@ export default function Journey() {
   const xp = profile?.xp_points ?? 0;
   const tierName = profile?.vip_tier ?? 'INITIATE';
   const team = profile?.favourite_team ?? null;
+  const teamId = profile?.favourite_team_id ?? null;
+  const teamLeague = profile?.favourite_team_league ?? null;
   const sport = profile?.favourite_sport ?? null;
-  const sportKey = sport ? SPORT_KEYS[sport.toLowerCase()] : undefined;
-  const sportLabel = sportKey ? t[sportKey] : (sport ?? '');
   const streakDays = profile?.streak_days ?? 0;
+
+  // All sports the player picked in onboarding (fallback to the single one)
+  const sportIds = (() => {
+    const arr = parseSports(profile?.favourite_sports);
+    if (arr.length) return arr;
+    return sport ? [sport.toLowerCase()] : [];
+  })();
+  const sportChips = sportIds.map((id) => ({
+    id,
+    emoji: sportEmoji(id),
+    label: SPORT_KEYS[id] ? t[SPORT_KEYS[id]] : id,
+  }));
   const memberSince = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString(lang, { month: 'long', year: 'numeric' })
     : '—';
@@ -159,15 +172,37 @@ export default function Journey() {
             <AnimatedNumber value={chatCount} style={styles.statValue} format={false} />
             <Text style={styles.statLabel}>{t.journeyChats}</Text>
           </GlowCard>
-          <GlowCard style={styles.statCard}>
-            <Text style={styles.statValue}>{sport ? `${sportEmoji(sport)} ${sportLabel}` : '—'}</Text>
-            <Text style={styles.statLabel}>{t.journeyFavSport}</Text>
-          </GlowCard>
-          <GlowCard style={styles.statCard}>
-            <Text style={styles.teamValue} numberOfLines={1}>{team ?? '—'}</Text>
-            <Text style={styles.statLabel}>{t.journeyTopTeam}</Text>
-          </GlowCard>
         </Animated.View>
+
+        {/* top team — real crest */}
+        {team && (
+          <Animated.View entering={FadeInDown.delay(280).duration(500)}>
+            <GlowCard style={styles.teamCard}>
+              <TeamCrest teamId={teamId} teamName={team} size={44} />
+              <View style={styles.teamCardInfo}>
+                <Text style={styles.teamCardName} numberOfLines={1}>{team}</Text>
+                {teamLeague && <Text style={styles.teamCardMeta} numberOfLines={1}>{teamLeague}</Text>}
+              </View>
+              <Text style={styles.statLabel}>{t.journeyTopTeam}</Text>
+            </GlowCard>
+          </Animated.View>
+        )}
+
+        {/* all the sports the player follows */}
+        {sportChips.length > 0 && (
+          <Animated.View entering={FadeInDown.delay(340).duration(500)}>
+            <GlowCard style={styles.sportsCard}>
+              <Text style={styles.statLabel}>{t.interestsTitle}</Text>
+              <View style={styles.sportsWrap}>
+                {sportChips.map((s) => (
+                  <View key={s.id} style={styles.sportChip}>
+                    <Text style={styles.sportChipText}>{s.emoji} {s.label}</Text>
+                  </View>
+                ))}
+              </View>
+            </GlowCard>
+          </Animated.View>
+        )}
       </ScrollView>
     </ScreenBg>
   );
@@ -369,6 +404,50 @@ const styles = StyleSheet.create({
   activeDaysMeta: {
     color: '#55556A',
     fontSize: Typography.xs + 1,
+    fontFamily: Fonts.semibold,
+  },
+  teamCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingVertical: 14,
+    paddingHorizontal: Spacing.base,
+  },
+  teamCardInfo: {
+    flex: 1,
+    gap: 1,
+  },
+  teamCardName: {
+    color: '#FFFFFF',
+    fontSize: Typography.md,
+    fontFamily: Fonts.bold,
+  },
+  teamCardMeta: {
+    color: Colors.textSecondary,
+    fontSize: Typography.xs + 1,
+    fontFamily: Fonts.medium,
+  },
+  sportsCard: {
+    gap: Spacing.sm + 2,
+    paddingVertical: 14,
+    paddingHorizontal: Spacing.base,
+  },
+  sportsWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
+  sportChip: {
+    backgroundColor: 'rgba(191,255,0,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(191,255,0,0.3)',
+    borderRadius: 999,
+    paddingVertical: 7,
+    paddingHorizontal: 13,
+  },
+  sportChipText: {
+    color: '#FFFFFF',
+    fontSize: Typography.sm,
     fontFamily: Fonts.semibold,
   },
 });

@@ -26,6 +26,7 @@ import ChatBubble from '../../src/components/ChatBubble';
 import GlowCard from '../../src/components/GlowCard';
 import ScreenBg from '../../src/components/ScreenBg';
 import { askBetina } from '../../src/lib/claude';
+import { parseSports } from '../../src/lib/sports';
 import { supabase } from '../../src/lib/supabase';
 import { useProfile } from '../../src/hooks/useProfile';
 import { useI18n } from '../../src/lib/i18n';
@@ -141,7 +142,9 @@ export default function Chat() {
       name: userName,
       lang,
       team: profile?.favourite_team,
-      sport: profile?.favourite_sport,
+      teamSport: profile?.favourite_team_sport,
+      teamLeague: profile?.favourite_team_league,
+      sports: parseSports(profile?.favourite_sports),
       tier: profile?.vip_tier,
       xp: profile?.xp_points,
       streakDays: profile?.streak_days,

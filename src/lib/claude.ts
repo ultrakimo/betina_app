@@ -24,7 +24,9 @@ export type BetinaContext = {
   name: string;
   lang: LangCode;
   team?: string | null;
-  sport?: string | null;
+  teamSport?: string | null;
+  teamLeague?: string | null;
+  sports?: string[]; // all sports the player follows
   tier?: string | null;
   xp?: number | null;
   streakDays?: number | null;
@@ -41,10 +43,18 @@ const LANG_NAMES: Record<LangCode, string> = {
 };
 
 function systemPrompt(ctx: BetinaContext): string {
+  const teamLine = ctx.team
+    ? `- Favourite team: ${ctx.team}${ctx.teamLeague ? ` (${ctx.teamLeague}${ctx.teamSport ? `, ${ctx.teamSport}` : ''})` : ''}`
+    : null;
+  const sportsLine =
+    ctx.sports && ctx.sports.length
+      ? `- Follows these sports: ${ctx.sports.join(', ')}`
+      : null;
+
   const facts = [
     `- Name: ${ctx.name}`,
-    ctx.team ? `- Favourite team: ${ctx.team} (follow their matches closely for the player)` : null,
-    ctx.sport ? `- Favourite sport: ${ctx.sport}` : null,
+    teamLine,
+    sportsLine,
     ctx.tier ? `- VIP tier: ${ctx.tier} (earned through activity, never spending)` : null,
     ctx.xp != null ? `- XP: ${ctx.xp}` : null,
     ctx.streakDays != null ? `- Daily streak: ${ctx.streakDays} days` : null,
@@ -60,9 +70,10 @@ ${facts}
 
 Rules:
 - ALWAYS respond in ${LANG_NAMES[ctx.lang]}, regardless of the language the player writes in.
+- Center the conversation on their favourite team${ctx.team ? ` (${ctx.team})` : ''}: bring up their fixtures, form, players, rivals and league news naturally, and default to talking about them when the player is vague ("what's up?", "any news?").
+- Their other sports are secondary — lean on the team first, branch out only when they ask.
 - Short, casual sentences. Emojis sparingly (max 1-2 per message).
 - Address the player by name, but naturally — not in every single message.
-- Talk about sports, matches, lineups, stats, the player's XP journey and streaks.
 - If asked about live scores or very recent results, be honest that you can't see live data yet and offer what you do know.
 - NEVER promise wins, NEVER suggest chasing losses, NEVER pressure anyone to bet.
 - No real money moves in this app — bets happen on the GeniusBet website only.`;
