@@ -59,6 +59,36 @@ export async function fetchNews(sport: string, count = 10): Promise<NewsItem[]> 
   }
 }
 
+export type TeamSearchResult = {
+  id: string;
+  name: string;
+  sport: string;
+  league: string;
+  country?: string;
+  badge?: string | null;
+};
+
+/** Search teams by name across every sport (TheSportsDB). Top 5, [] on error. */
+export async function searchTeams(query: string): Promise<TeamSearchResult[]> {
+  if (!query.trim()) return [];
+  try {
+    const r = await fetch(
+      `https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(query)}`,
+    );
+    const d = await r.json();
+    return (d.teams ?? []).slice(0, 5).map((t: any) => ({
+      id: t.idTeam,
+      name: t.strTeam,
+      sport: t.strSport,
+      league: t.strLeague,
+      country: t.strCountry,
+      badge: t.strBadge ?? t.strTeamBadge ?? null,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 // Team crest URLs by team id — resolved once from TheSportsDB, then cached.
 const badgeCache = new Map<string, string | null>();
 

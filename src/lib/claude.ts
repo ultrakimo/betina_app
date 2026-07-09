@@ -8,11 +8,19 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import type { LangCode } from './i18n';
-import type { LiveContext, MatchEvent } from './sports';
+import {
+  fetchNews,
+  fetchTeamLast,
+  fetchTeamNext,
+  searchTeams,
+  type LiveContext,
+  type MatchEvent,
+} from './sports';
 
 const CLAUDE_API_KEY = process.env.EXPO_PUBLIC_CLAUDE_API_KEY ?? '';
 const MODEL = 'claude-sonnet-5';
 const MAX_HISTORY_TURNS = 24; // cap what we resend each turn
+const MAX_TOOL_ROUNDS = 5; // safety cap on the tool-call loop
 
 const client = CLAUDE_API_KEY
   ? new Anthropic({ apiKey: CLAUDE_API_KEY, dangerouslyAllowBrowser: true })
@@ -90,9 +98,10 @@ ${facts}${liveDataBlock(ctx.live)}
 Rules:
 - ALWAYS respond in ${LANG_NAMES[ctx.lang]}, regardless of the language the player writes in.
 - Center the conversation on their favourite team${ctx.team ? ` (${ctx.team})` : ''}: bring up their fixtures, form, players, rivals and league news naturally, and default to talking about them when the player is vague ("what's up?", "any news?").
-- Use the LIVE DATA above to give concrete answers — the next fixture, recent results and current headlines are real. When the player asks "any news?" or "when do they play?", answer from it directly.
-- The only thing you genuinely don't have is minute-by-minute in-play scores of a match happening right now — for that, point them to the app's Live tab. Everything in LIVE DATA you CAN talk about.
-- Their other sports are secondary — lean on the team first, branch out only when they ask.
+- Use the LIVE DATA above for their favourite team — it's already loaded, so answer instantly (next fixture, recent results, headlines) without a lookup.
+- For ANYTHING beyond that — another team, another sport, more news, a specific matchup — use your tools to look it up live: search_team to get a team's id, then get_fixtures / get_results, and get_news for headlines. Never guess scores, dates or standings from memory; if it's not in LIVE DATA, look it up.
+- The only thing you truly can't get is minute-by-minute in-play scores of a match happening right now — for that, point them to the app's Live tab.
+- You cover every sport and team, not just theirs — be the expert companion who can pull up anything.
 - Short, casual sentences. Emojis sparingly (max 1-2 per message).
 - Address the player by name, but naturally — not in every single message.
 - NEVER promise wins, NEVER suggest chasing losses, NEVER pressure anyone to bet.
@@ -161,6 +170,85 @@ const BUSY_ERROR: Record<LangCode, (n: string) => string> = {
 
 let fallbackIndex = 0;
 
+// ── Tools: let BETina look up any team / sport / news on demand ───────────────
+
+const TOOLS: Anthropic.Tool[] = [
+  {
+    name: 'search_team',
+    description:
+      'Find a sports team by name across ANY sport (football, basketball, tennis clubs, NFL, etc.) to get its id, sport and league. Call this first whenever the player mentions a team you do not already have an id for.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Team name, e.g. "Real Madrid", "Lakers", "Chiefs"' },
+      },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'get_fixtures',
+    description: "Get a team's upcoming matches (date, time, league). Needs a team id from search_team.",
+    input_schema: {
+      type: 'object',
+      properties: { team_id: { type: 'string', description: 'The idTeam from search_team' } },
+      required: ['team_id'],
+    },
+  },
+  {
+    name: 'get_results',
+    description: "Get a team's recent finished matches with scores. Needs a team id from search_team.",
+    input_schema: {
+      type: 'object',
+      properties: { team_id: { type: 'string', description: 'The idTeam from search_team' } },
+      required: ['team_id'],
+    },
+  },
+  {
+    name: 'get_news',
+    description:
+      'Get the latest sports headlines. Optional sport filter: football, basketball, tennis, cricket, rugby, golf, athletics.',
+    input_schema: {
+      type: 'object',
+      properties: { sport: { type: 'string', description: 'Optional sport, defaults to general' } },
+      required: [],
+    },
+  },
+];
+
+function compactMatch(e: MatchEvent) {
+  return {
+    home: e.home,
+    away: e.away,
+    score: e.homeScore != null && e.awayScore != null ? `${e.homeScore}-${e.awayScore}` : null,
+    date: e.date,
+    time: e.time ? e.time.slice(0, 5) : null,
+    league: e.league,
+  };
+}
+
+async function runTool(name: string, input: Record<string, unknown>): Promise<string> {
+  try {
+    if (name === 'search_team') {
+      return JSON.stringify(await searchTeams(String(input.query ?? '')));
+    }
+    if (name === 'get_fixtures') {
+      const r = await fetchTeamNext(String(input.team_id ?? ''));
+      return JSON.stringify(r.slice(0, 5).map(compactMatch));
+    }
+    if (name === 'get_results') {
+      const r = await fetchTeamLast(String(input.team_id ?? ''));
+      return JSON.stringify(r.slice(0, 5).map(compactMatch));
+    }
+    if (name === 'get_news') {
+      const r = await fetchNews(String(input.sport ?? 'sport'), 8);
+      return JSON.stringify(r.slice(0, 8).map((n) => n.title));
+    }
+    return 'Unknown tool.';
+  } catch {
+    return 'That lookup failed — no data available right now.';
+  }
+}
+
 // ── Main entry ───────────────────────────────────────────────────────────────
 
 export async function askBetina(history: Turn[], ctx: BetinaContext): Promise<string> {
@@ -179,23 +267,48 @@ export async function askBetina(history: Turn[], ctx: BetinaContext): Promise<st
   const trimmed = firstUser === -1 ? [] : history.slice(firstUser).slice(-MAX_HISTORY_TURNS);
   if (trimmed.length === 0) return (FALLBACK_REPLIES[ctx.lang] ?? FALLBACK_REPLIES.en)[0](ctx.name);
 
-  try {
-    const response = await client.messages.create({
-      model: MODEL,
-      max_tokens: 1024,
-      // Chat companion: snappy replies matter more than deep reasoning
-      thinking: { type: 'disabled' },
-      output_config: { effort: 'low' },
-      system: systemPrompt(ctx),
-      messages: trimmed,
-    });
+  const messages: Anthropic.MessageParam[] = trimmed.map((m) => ({
+    role: m.role,
+    content: m.content,
+  }));
 
-    const text = response.content
-      .filter((block): block is Anthropic.TextBlock => block.type === 'text')
-      .map((block) => block.text)
-      .join('')
-      .trim();
-    return text || (NETWORK_ERROR[ctx.lang] ?? NETWORK_ERROR.en)(ctx.name);
+  try {
+    // Agentic loop: BETina may call tools to look things up, then answer.
+    for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+      const response = await client.messages.create({
+        model: MODEL,
+        max_tokens: 1024,
+        thinking: { type: 'disabled' },
+        system: systemPrompt(ctx),
+        tools: TOOLS,
+        messages,
+      });
+
+      if (response.stop_reason === 'tool_use') {
+        const toolUses = response.content.filter(
+          (b): b is Anthropic.ToolUseBlock => b.type === 'tool_use',
+        );
+        messages.push({ role: 'assistant', content: response.content });
+        const results = await Promise.all(
+          toolUses.map(async (tu) => ({
+            type: 'tool_result' as const,
+            tool_use_id: tu.id,
+            content: await runTool(tu.name, (tu.input ?? {}) as Record<string, unknown>),
+          })),
+        );
+        messages.push({ role: 'user', content: results });
+        continue;
+      }
+
+      const text = response.content
+        .filter((block): block is Anthropic.TextBlock => block.type === 'text')
+        .map((block) => block.text)
+        .join('')
+        .trim();
+      return text || (NETWORK_ERROR[ctx.lang] ?? NETWORK_ERROR.en)(ctx.name);
+    }
+    // Ran out of tool rounds without a final answer
+    return (NETWORK_ERROR[ctx.lang] ?? NETWORK_ERROR.en)(ctx.name);
   } catch (error) {
     if (error instanceof Anthropic.RateLimitError) {
       return (BUSY_ERROR[ctx.lang] ?? BUSY_ERROR.en)(ctx.name);
