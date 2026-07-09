@@ -12,7 +12,8 @@ import GlowCard from '../../src/components/GlowCard';
 import ParticlesBg from '../../src/components/ParticlesBg';
 import ScreenBg from '../../src/components/ScreenBg';
 import XPBar from '../../src/components/XPBar';
-import { demoEvents, tiers } from '../../src/lib/demo';
+import { tiers } from '../../src/lib/demo';
+import { MatchEvent, fetchTeamNext, formatKickoff } from '../../src/lib/sports';
 import { supabase } from '../../src/lib/supabase';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
@@ -40,16 +41,19 @@ type Profile = {
   vip_tier: string;
   xp_points: number;
   favourite_team: string | null;
+  favourite_team_id: string | null;
   favourite_sport: string | null;
   country: string | null;
 };
 
 export default function Home() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fixtures, setFixtures] = useState<MatchEvent[]>([]);
+  const [loadingFixtures, setLoadingFixtures] = useState(false);
 
   useEffect(() => {
     loadProfile();
@@ -61,7 +65,7 @@ export default function Home() {
       if (!user) { setLoading(false); return; }
       const { data } = await supabase
         .from('profiles')
-        .select('name, vip_tier, xp_points, favourite_team, favourite_sport, country')
+        .select('name, vip_tier, xp_points, favourite_team, favourite_team_id, favourite_sport, country')
         .eq('id', user.id)
         .maybeSingle();
       if (data) setProfile(data);
@@ -72,6 +76,19 @@ export default function Home() {
     }
   };
 
+  const teamId = profile?.favourite_team_id ?? null;
+
+  // Load the favourite team's real upcoming fixtures
+  useEffect(() => {
+    if (!teamId) { setFixtures([]); return; }
+    let active = true;
+    setLoadingFixtures(true);
+    fetchTeamNext(teamId)
+      .then((events) => { if (active) setFixtures(events); })
+      .finally(() => { if (active) setLoadingFixtures(false); });
+    return () => { active = false; };
+  }, [teamId]);
+
   const xp = profile?.xp_points ?? 0;
   const name = profile?.name ?? '...';
   const tier = profile?.vip_tier ?? 'INITIATE';
@@ -79,11 +96,11 @@ export default function Home() {
   const { next, progress } = getTierInfo(xp);
 
   const betinaSays = team
-    ? `Hey ${name}! I'm keeping an eye on ${team} for you. Ask me anything — fixtures, stats, news. 💬`
-    : `Hey ${name}! I'm BETina — your AI companion. Ask me about any match, player or sport. 💬`;
+    ? t.homeBetinaTeam.replace('{name}', name).replace('{team}', team)
+    : t.homeBetinaNoTeam.replace('{name}', name);
 
-  const featured = demoEvents.find((e) => e.featured)!;
-  const secondary = demoEvents.find((e) => e.id === 'atp-finals')!;
+  const kickoff = (e: MatchEvent) =>
+    formatKickoff(e.date, e.time, lang, { today: t.homeToday, tomorrow: t.homeTomorrow });
 
   if (loading) {
     return (
@@ -161,42 +178,64 @@ export default function Home() {
           </Pressable>
         </Animated.View>
 
-        {/* today's events */}
+        {/* upcoming fixtures for the favourite team */}
         <Animated.View entering={FadeInDown.delay(260).duration(500)} style={styles.eventsBlock}>
           <View style={styles.sectionRow}>
-            <Text style={styles.sectionTitle}>{t.homeTodaysEvents}</Text>
+            <Text style={styles.sectionTitle}>{t.homeUpcoming}</Text>
             <Pressable onPress={() => router.push('/(tabs)/live')} hitSlop={8}>
               <Text style={styles.sectionLink}>{t.homeSeeAll}</Text>
             </Pressable>
           </View>
 
-          <Pressable onPress={() => router.push(`/event/${featured.id}`)}>
-            <GlowCard variant="purple" style={styles.featuredCard}>
-              <View style={styles.featuredTop}>
-                <Text style={styles.featuredLeague}>
-                  {featured.leagueEmoji} {featured.league}
-                </Text>
-                <Text style={styles.featuredTime}>{featured.time}</Text>
-              </View>
-              <View style={styles.featuredTeams}>
-                <Text style={styles.teamName}>{featured.home}</Text>
-                <Text style={styles.vs}>vs</Text>
-                <Text style={styles.teamName}>{featured.away}</Text>
-              </View>
+          {!teamId ? (
+            <GlowCard style={styles.eventCard}>
+              <Text style={styles.emptyText}>{t.homePickTeam}</Text>
             </GlowCard>
-          </Pressable>
+          ) : loadingFixtures ? (
+            <GlowCard style={styles.loadingCard}>
+              <ActivityIndicator color={Colors.primary} />
+            </GlowCard>
+          ) : fixtures.length === 0 ? (
+            <GlowCard style={styles.eventCard}>
+              <Text style={styles.emptyText}>
+                {t.homeNoFixtures.replace('{team}', team ?? '')}
+              </Text>
+            </GlowCard>
+          ) : (
+            <>
+              {/* featured: next match */}
+              <Pressable onPress={() => router.push('/(tabs)/live')}>
+                <GlowCard variant="purple" style={styles.featuredCard}>
+                  <View style={styles.featuredTop}>
+                    <Text style={styles.featuredLeague} numberOfLines={1}>
+                      {fixtures[0].league}
+                    </Text>
+                    <Text style={styles.featuredTime}>{kickoff(fixtures[0])}</Text>
+                  </View>
+                  <View style={styles.featuredTeams}>
+                    <Text style={styles.teamName} numberOfLines={1}>{fixtures[0].home}</Text>
+                    <Text style={styles.vs}>vs</Text>
+                    <Text style={styles.teamName} numberOfLines={1}>{fixtures[0].away}</Text>
+                  </View>
+                </GlowCard>
+              </Pressable>
 
-          <GlowCard style={styles.eventCard}>
-            <View style={styles.eventInfo}>
-              <Text style={styles.eventLeague}>
-                {secondary.leagueEmoji} {secondary.league}
-              </Text>
-              <Text style={styles.eventName}>
-                {secondary.home} vs {secondary.away}
-              </Text>
-            </View>
-            <Text style={styles.eventTime}>{secondary.time}</Text>
-          </GlowCard>
+              {/* second upcoming match, if any */}
+              {fixtures[1] && (
+                <GlowCard style={styles.eventCard}>
+                  <View style={styles.eventInfo}>
+                    <Text style={styles.eventLeague} numberOfLines={1}>
+                      {fixtures[1].league}
+                    </Text>
+                    <Text style={styles.eventName} numberOfLines={1}>
+                      {fixtures[1].home} vs {fixtures[1].away}
+                    </Text>
+                  </View>
+                  <Text style={styles.eventTime}>{kickoff(fixtures[1])}</Text>
+                </GlowCard>
+              )}
+            </>
+          )}
         </Animated.View>
 
         {/* Open GeniusBet CTA */}
@@ -280,6 +319,8 @@ const styles = StyleSheet.create({
   eventLeague: { color: Colors.textSecondary, fontSize: Typography.xs, fontFamily: Fonts.semibold, letterSpacing: 0.7 },
   eventName: { color: '#FFFFFF', fontSize: Typography.sm + 1, fontFamily: Fonts.semibold },
   eventTime: { color: Colors.textSecondary, fontSize: Typography.xs + 1, fontFamily: Fonts.semibold },
+  emptyText: { flex: 1, color: Colors.textSecondary, fontSize: Typography.sm, fontFamily: Fonts.medium, lineHeight: 20 },
+  loadingCard: { alignItems: 'center', justifyContent: 'center', paddingVertical: 28 },
   ctaLogo: { height: 16, width: 20, tintColor: Colors.background },
   ctaArrow: { color: Colors.background, fontSize: Typography.md - 1, fontFamily: Fonts.bold },
 });
