@@ -238,21 +238,6 @@ export default function Home() {
           )}
         </Animated.View>
 
-        {/* Open GeniusBet CTA */}
-        <Animated.View entering={FadeInDown.delay(340).duration(500)}>
-          <GlowButton
-            label={t.homeOpenGB}
-            onPress={() => WebBrowser.openBrowserAsync(GENIUSBET_URL)}
-            leftElement={
-              <Image
-                source={require('../../assets/logo-mark.png')}
-                style={styles.ctaLogo}
-                resizeMode="contain"
-              />
-            }
-            rightElement={<Text style={styles.ctaArrow}>→</Text>}
-          />
-        </Animated.View>
       </ScrollView>
     </ScreenBg>
   );

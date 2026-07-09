@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -47,6 +47,43 @@ export default function Settings() {
   const [betinaMessages, setBetinaMessages] = useState(true);
   const [tierUpdates, setTierUpdates] = useState(false);
 
+  // Load saved notification preferences (degrades gracefully if the columns
+  // aren't there yet — migration 004).
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('notify_events, notify_betina, notify_tier')
+          .eq('id', user.id)
+          .maybeSingle();
+        if (!error && data) {
+          if (typeof data.notify_events === 'boolean') setEventReminders(data.notify_events);
+          if (typeof data.notify_betina === 'boolean') setBetinaMessages(data.notify_betina);
+          if (typeof data.notify_tier === 'boolean') setTierUpdates(data.notify_tier);
+        }
+      } catch {
+        // keep defaults
+      }
+    })();
+  }, []);
+
+  const savePref = (column: 'notify_events' | 'notify_betina' | 'notify_tier', value: boolean) => {
+    supabase.auth
+      .getUser()
+      .then(({ data }) => {
+        if (data.user) {
+          return supabase.from('profiles').update({ [column]: value }).eq('id', data.user.id);
+        }
+      })
+      .then((res) => {
+        if (res?.error) console.warn('notify pref save failed:', res.error.message);
+      })
+      .catch(() => {});
+  };
+
   // Language picker state
   const [langModalOpen, setLangModalOpen] = useState(false);
   const [selectedLang, setSelectedLang] = useState<LangCode>(lang);
@@ -90,8 +127,12 @@ export default function Settings() {
               <Text style={styles.profileInitialLabel}>{(name[0] || '?').toUpperCase()}</Text>
             </View>
             <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>{name}</Text>
-              <Text style={styles.profileMeta}>{phone ?? '—'} · {tier}</Text>
+              <Text style={styles.profileName} numberOfLines={1}>{name}</Text>
+              <Text style={styles.profileMeta}>{phone ?? '—'}</Text>
+            </View>
+            <View style={styles.tierPill}>
+              <View style={styles.tierDot} />
+              <Text style={styles.tierPillLabel}>{tier}</Text>
             </View>
           </GlowCard>
         </Animated.View>
@@ -105,8 +146,8 @@ export default function Settings() {
               label={t.settingsLanguage}
               value={`${currentLangInfo.flag} ${currentLangInfo.nativeName}`}
               onPress={() => { setSelectedLang(lang); setLangModalOpen(true); }}
+              last
             />
-            <Row emoji="🎨" label={t.settingsAppearance} value={t.settingsDark} last />
           </GlowCard>
         </Animated.View>
 
@@ -114,9 +155,9 @@ export default function Settings() {
         <Animated.View entering={FadeInDown.delay(200).duration(500)} style={styles.section}>
           <SectionLabel>{t.settingsPush}</SectionLabel>
           <GlowCard>
-            <Row emoji="⚽" label={t.settingsEventReminders} right={<Toggle value={eventReminders} onValueChange={setEventReminders} />} />
-            <Row emoji="💬" label={t.settingsBetinaMsgs} right={<Toggle value={betinaMessages} onValueChange={setBetinaMessages} />} />
-            <Row emoji="🏆" label={t.settingsTierUpdates} right={<Toggle value={tierUpdates} onValueChange={setTierUpdates} />} last />
+            <Row emoji="⚽" label={t.settingsEventReminders} right={<Toggle value={eventReminders} onValueChange={(v) => { setEventReminders(v); savePref('notify_events', v); }} />} />
+            <Row emoji="💬" label={t.settingsBetinaMsgs} right={<Toggle value={betinaMessages} onValueChange={(v) => { setBetinaMessages(v); savePref('notify_betina', v); }} />} />
+            <Row emoji="🏆" label={t.settingsTierUpdates} right={<Toggle value={tierUpdates} onValueChange={(v) => { setTierUpdates(v); savePref('notify_tier', v); }} />} last />
           </GlowCard>
         </Animated.View>
 
@@ -124,9 +165,9 @@ export default function Settings() {
         <Animated.View entering={FadeInDown.delay(260).duration(500)} style={styles.section}>
           <SectionLabel>{t.settingsSupport}</SectionLabel>
           <GlowCard>
-            <Row emoji="💡" label={t.settingsHelp} onPress={() => {}} />
+            <Row emoji="💡" label={t.settingsHelp} onPress={() => router.push('/help')} />
             <Row emoji="🛡️" label={t.settingsResponsible} right={<Text style={styles.externalHint}>↗</Text>} onPress={() => WebBrowser.openBrowserAsync(RESPONSIBLE_GAMING_URL)} />
-            <Row emoji="📄" label={t.settingsTermsPrivacy} onPress={() => {}} last />
+            <Row emoji="📄" label={t.settingsTermsPrivacy} onPress={() => router.push('/legal')} last />
           </GlowCard>
         </Animated.View>
 
@@ -192,6 +233,13 @@ const styles = StyleSheet.create({
   profileInfo: { flex: 1, gap: 1 },
   profileName: { color: '#FFF', fontSize: Typography.base + 1, fontFamily: Fonts.bold },
   profileMeta: { color: Colors.textSecondary, fontSize: Typography.xs + 1, fontFamily: Fonts.medium },
+  tierPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: 'rgba(191,255,0,0.1)', borderWidth: 1, borderColor: 'rgba(191,255,0,0.3)',
+    borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12,
+  },
+  tierDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: Colors.primary },
+  tierPillLabel: { color: Colors.primary, fontSize: Typography.xs, fontFamily: Fonts.bold, letterSpacing: 0.6 },
   section: { gap: Spacing.sm },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: 12, paddingHorizontal: 16 },
   rowEmoji: { fontSize: 17 },

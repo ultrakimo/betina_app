@@ -1,0 +1,78 @@
+import React from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as WebBrowser from 'expo-web-browser';
+import BackButton from '../src/components/BackButton';
+import GlowCard from '../src/components/GlowCard';
+import ScreenBg from '../src/components/ScreenBg';
+import { LEGAL_DOCS, LegalDocKey } from '../src/lib/legal';
+import { Colors, Fonts, Spacing, Typography } from '../src/theme';
+
+const RESPONSIBLE_GAMING_URL = 'https://www.begambleaware.org';
+
+const DOCS: { key: LegalDocKey; emoji: string }[] = [
+  { key: 'privacy', emoji: '🔒' },
+  { key: 'terms', emoji: '📄' },
+  { key: 'imprint', emoji: '🏛️' },
+  { key: 'about', emoji: '⚡' },
+];
+
+export default function Legal() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+
+  return (
+    <ScreenBg glowTop={0.12} glowSize={440}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: insets.top + Spacing.base, paddingBottom: insets.bottom + Spacing.xl },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.topBar}>
+          <BackButton />
+          <Text style={styles.title}>Legal</Text>
+        </View>
+
+        <GlowCard>
+          {DOCS.map((d, i) => (
+            <React.Fragment key={d.key}>
+              <Pressable
+                onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc: d.key } })}
+                style={styles.row}
+              >
+                <Text style={styles.rowEmoji}>{d.emoji}</Text>
+                <Text style={styles.rowLabel}>{LEGAL_DOCS[d.key].title}</Text>
+                <Text style={styles.chevron}>›</Text>
+              </Pressable>
+              {i < DOCS.length - 1 && <View style={styles.divider} />}
+            </React.Fragment>
+          ))}
+        </GlowCard>
+
+        <Pressable onPress={() => WebBrowser.openBrowserAsync(RESPONSIBLE_GAMING_URL)}>
+          <GlowCard style={styles.rgCard}>
+            <Text style={styles.rowEmoji}>🛡️</Text>
+            <Text style={styles.rowLabel}>Responsible gaming resources</Text>
+            <Text style={styles.external}>opens browser ↗</Text>
+          </GlowCard>
+        </Pressable>
+      </ScrollView>
+    </ScreenBg>
+  );
+}
+
+const styles = StyleSheet.create({
+  content: { paddingHorizontal: Spacing.lg, gap: 14 },
+  topBar: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingTop: Spacing.sm },
+  title: { color: '#FFFFFF', fontSize: Typography.lg + 2, fontFamily: Fonts.bold },
+  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: 14, paddingHorizontal: 16 },
+  rowEmoji: { fontSize: 17 },
+  rowLabel: { flex: 1, color: '#FFFFFF', fontSize: Typography.sm + 1, fontFamily: Fonts.semibold },
+  chevron: { color: '#55556A', fontSize: Typography.sm + 1 },
+  external: { color: '#55556A', fontSize: Typography.xs + 1, fontFamily: Fonts.medium },
+  divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.06)', marginHorizontal: 16 },
+  rgCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: 14, paddingHorizontal: 16 },
+});
