@@ -68,6 +68,10 @@ const SPORT_EMOJI: Record<string, string> = {
   rugby: '🏉',
   athletics: '🏃',
   golf: '⛳',
+  hockey: '🏒',
+  esports: '🎮',
+  nfl: '🏈',
+  mma: '🥊',
 };
 
 export function sportEmoji(sport?: string | null): string {

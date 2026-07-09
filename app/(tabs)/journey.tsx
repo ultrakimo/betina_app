@@ -1,27 +1,49 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import AnimatedNumber from '../../src/components/AnimatedNumber';
 import GlowCard from '../../src/components/GlowCard';
 import ScreenBg from '../../src/components/ScreenBg';
-import TeamBadge from '../../src/components/TeamBadge';
 import XPBar from '../../src/components/XPBar';
 import { tiers } from '../../src/lib/demo';
-import { useI18n } from '../../src/lib/i18n';
+import { SPORT_KEYS, useI18n } from '../../src/lib/i18n';
+import { sportEmoji } from '../../src/lib/sports';
 import { useProfile } from '../../src/hooks/useProfile';
+import { supabase } from '../../src/lib/supabase';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 export default function Journey() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { profile, loading } = useProfile();
+  const [chatCount, setChatCount] = useState(0);
+
+  // Real count of messages the player has sent BETina
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { count } = await supabase
+          .from('chat_messages')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('role', 'user');
+        if (typeof count === 'number') setChatCount(count);
+      } catch {
+        // offline / demo — leave at 0
+      }
+    })();
+  }, []);
   const xp = profile?.xp_points ?? 0;
   const tierName = profile?.vip_tier ?? 'INITIATE';
   const team = profile?.favourite_team ?? null;
   const sport = profile?.favourite_sport ?? null;
+  const sportKey = sport ? SPORT_KEYS[sport.toLowerCase()] : undefined;
+  const sportLabel = sportKey ? t[sportKey] : (sport ?? '');
   const streakDays = profile?.streak_days ?? 0;
   const memberSince = profile?.created_at
-    ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    ? new Date(profile.created_at).toLocaleDateString(lang, { month: 'long', year: 'numeric' })
     : '—';
   const currentTierIndex = tiers.findIndex((t) => t.name === tierName);
   const currentTierObj = tiers[currentTierIndex] ?? tiers[0];
@@ -127,51 +149,23 @@ export default function Journey() {
           </GlowCard>
         </Animated.View>
 
-        {/* activity stats grid */}
+        {/* activity stats grid — real data only */}
         <Animated.View entering={FadeInDown.delay(220).duration(500)} style={styles.grid}>
           <GlowCard style={styles.statCard}>
             <Text style={styles.statValue}>🔥 {streakDays}</Text>
             <Text style={styles.statLabel}>{t.journeyDayStreak}</Text>
           </GlowCard>
           <GlowCard style={styles.statCard}>
-            <AnimatedNumber value={0} style={styles.statValue} format={false} />
+            <AnimatedNumber value={chatCount} style={styles.statValue} format={false} />
             <Text style={styles.statLabel}>{t.journeyChats}</Text>
           </GlowCard>
           <GlowCard style={styles.statCard}>
-            <AnimatedNumber
-              value={0}
-              style={styles.statValue}
-              format={false}
-            />
-            <Text style={styles.statLabel}>{t.journeyEventsFollowed}</Text>
-          </GlowCard>
-          <GlowCard style={styles.statCard}>
-            <Text style={styles.statValueGold}>🏅 {0}</Text>
-            <Text style={styles.statLabel}>{t.journeyAchievements}</Text>
-          </GlowCard>
-          <GlowCard style={styles.statCard}>
-            <Text style={styles.statValue}>⚽ {sport ?? '—'}</Text>
+            <Text style={styles.statValue}>{sport ? `${sportEmoji(sport)} ${sportLabel}` : '—'}</Text>
             <Text style={styles.statLabel}>{t.journeyFavSport}</Text>
           </GlowCard>
           <GlowCard style={styles.statCard}>
-            <View style={styles.teamRow}>
-              <TeamBadge short="FCB" size={24} />
-              <Text style={styles.teamValue}>{team ?? '—'}</Text>
-            </View>
+            <Text style={styles.teamValue} numberOfLines={1}>{team ?? '—'}</Text>
             <Text style={styles.statLabel}>{t.journeyTopTeam}</Text>
-          </GlowCard>
-          <GlowCard style={[styles.statCard, styles.statCardWide]}>
-            <View style={styles.activeDaysRow}>
-              <AnimatedNumber
-                value={0}
-                style={styles.statValueGreen}
-                format={false}
-              />
-              <Text style={styles.activeDaysMeta}>
-                {t.journeyOfDays.replace('{n}', '0')}
-              </Text>
-            </View>
-            <Text style={styles.statLabel}>{t.journeyActiveDays}</Text>
           </GlowCard>
         </Animated.View>
       </ScrollView>
