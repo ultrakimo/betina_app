@@ -13,7 +13,7 @@ export const COMPANY = {
   privacyEmail: 'marketing@geniusbet.com',
   effectiveDate: '9 July 2026',
   governingLaw: 'England and Wales',
-  directors: 'Thomas De Bruyne, Dejan Morawietz',
+  directors: 'Dejan Morawietz',
 };
 
 export type LegalSection = { heading: string; body: string };

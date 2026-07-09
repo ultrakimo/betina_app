@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useI18n } from '../../src/lib/i18n';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as WebBrowser from 'expo-web-browser';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import AnimatedNumber from '../../src/components/AnimatedNumber';
 import BETinaAvatar from '../../src/components/BETinaAvatar';
-import GlowButton from '../../src/components/GlowButton';
 import GlowCard from '../../src/components/GlowCard';
 import ParticlesBg from '../../src/components/ParticlesBg';
 import ScreenBg from '../../src/components/ScreenBg';
@@ -16,8 +14,6 @@ import { tiers } from '../../src/lib/demo';
 import { MatchEvent, fetchTeamNext, formatKickoff } from '../../src/lib/sports';
 import { supabase } from '../../src/lib/supabase';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
-
-const GENIUSBET_URL = 'https://geniusbet.com';
 
 function getGreeting(t: { homeMorning: string; homeAfternoon: string; homeEvening: string }) {
   const h = new Date().getHours();
@@ -306,6 +302,4 @@ const styles = StyleSheet.create({
   eventTime: { color: Colors.textSecondary, fontSize: Typography.xs + 1, fontFamily: Fonts.semibold },
   emptyText: { flex: 1, color: Colors.textSecondary, fontSize: Typography.sm, fontFamily: Fonts.medium, lineHeight: 20 },
   loadingCard: { alignItems: 'center', justifyContent: 'center', paddingVertical: 28 },
-  ctaLogo: { height: 16, width: 20, tintColor: Colors.background },
-  ctaArrow: { color: Colors.background, fontSize: Typography.md - 1, fontFamily: Fonts.bold },
 });

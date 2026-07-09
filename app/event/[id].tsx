@@ -1,8 +1,7 @@
 import React from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as WebBrowser from 'expo-web-browser';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import BackButton from '../../src/components/BackButton';
 import BETinaAvatar from '../../src/components/BETinaAvatar';
@@ -13,8 +12,6 @@ import ScreenBg from '../../src/components/ScreenBg';
 import TeamBadge from '../../src/components/TeamBadge';
 import { demoEvents } from '../../src/lib/demo';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
-
-const GENIUSBET_URL = 'https://geniusbet.com';
 
 const FORM = {
   home: ['W', 'W', 'D', 'W', 'W'],
@@ -143,19 +140,7 @@ export default function EventDetail() {
 
         {/* actions */}
         <Animated.View entering={FadeInDown.delay(280).duration(500)} style={styles.actions}>
-          <GlowButton
-            label="Open GeniusBet"
-            onPress={() => WebBrowser.openBrowserAsync(GENIUSBET_URL)}
-            leftElement={
-              <Image
-                source={require('../../assets/logo-mark.png')}
-                style={styles.ctaLogo}
-                resizeMode="contain"
-              />
-            }
-            rightElement={<Text style={styles.ctaArrow}>→</Text>}
-          />
-          <GlowButton label="🔔 Remind me at kickoff" variant="ghost" onPress={() => {}} />
+          <GlowButton label="🔔 Remind me at kickoff" onPress={() => {}} />
         </Animated.View>
       </ScrollView>
     </ScreenBg>
