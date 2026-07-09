@@ -26,7 +26,7 @@ import ChatBubble from '../../src/components/ChatBubble';
 import GlowCard from '../../src/components/GlowCard';
 import ScreenBg from '../../src/components/ScreenBg';
 import { askBetina } from '../../src/lib/claude';
-import { parseSports } from '../../src/lib/sports';
+import { LiveContext, fetchLiveContext, parseSports } from '../../src/lib/sports';
 import { supabase } from '../../src/lib/supabase';
 import { useProfile } from '../../src/hooks/useProfile';
 import { useI18n } from '../../src/lib/i18n';
@@ -124,7 +124,21 @@ export default function Chat() {
   };
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
+  const [live, setLive] = useState<LiveContext | null>(null);
   const scrollRef = useRef<ScrollView>(null);
+
+  // Pull the real fixtures/results/headlines once the profile is known, so
+  // BETina can answer with concrete data instead of "I can't see live info".
+  useEffect(() => {
+    if (!profile) return;
+    let active = true;
+    fetchLiveContext(
+      profile.favourite_team_id,
+      profile.favourite_team,
+      profile.favourite_team_sport ?? profile.favourite_sport,
+    ).then((ctx) => { if (active) setLive(ctx); });
+    return () => { active = false; };
+  }, [profile?.favourite_team_id, profile?.favourite_team]);
 
   const send = async (text: string) => {
     const trimmed = text.trim();
@@ -148,6 +162,7 @@ export default function Chat() {
       tier: profile?.vip_tier,
       xp: profile?.xp_points,
       streakDays: profile?.streak_days,
+      live,
     });
     persist('assistant', reply);
 

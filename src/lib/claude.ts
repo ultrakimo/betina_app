@@ -8,6 +8,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import type { LangCode } from './i18n';
+import type { LiveContext, MatchEvent } from './sports';
 
 const CLAUDE_API_KEY = process.env.EXPO_PUBLIC_CLAUDE_API_KEY ?? '';
 const MODEL = 'claude-sonnet-5';
@@ -30,6 +31,7 @@ export type BetinaContext = {
   tier?: string | null;
   xp?: number | null;
   streakDays?: number | null;
+  live?: LiveContext | null; // real fixtures / results / headlines
 };
 
 const LANG_NAMES: Record<LangCode, string> = {
@@ -41,6 +43,23 @@ const LANG_NAMES: Record<LangCode, string> = {
   it: 'Italian',
   ro: 'Romanian',
 };
+
+function matchLine(e: MatchEvent): string {
+  const score = e.homeScore != null && e.awayScore != null ? ` (${e.homeScore}–${e.awayScore})` : '';
+  const when = `${e.date}${e.time ? ` ${e.time.slice(0, 5)}` : ''}`;
+  return `${e.home} vs ${e.away}${score} — ${when}, ${e.league}`;
+}
+
+function liveDataBlock(live: LiveContext | null | undefined): string {
+  if (!live) return '';
+  const parts: string[] = [];
+  if (live.next.length) parts.push('Upcoming fixtures:\n' + live.next.map((e) => `  • ${matchLine(e)}`).join('\n'));
+  if (live.last.length) parts.push('Recent results:\n' + live.last.map((e) => `  • ${matchLine(e)}`).join('\n'));
+  if (live.news.length) parts.push('Latest headlines (BBC Sport):\n' + live.news.map((n) => `  • ${n.title}`).join('\n'));
+  if (!parts.length) return '';
+  const today = new Date().toISOString().slice(0, 10);
+  return `\n\nLIVE DATA (pulled from the app's sports feed, today is ${today}) — reference this to answer accurately, don't say you can't see data:\n${parts.join('\n')}`;
+}
 
 function systemPrompt(ctx: BetinaContext): string {
   const teamLine = ctx.team
@@ -66,15 +85,16 @@ function systemPrompt(ctx: BetinaContext): string {
 Personality: friendly, energetic, a bit cheeky, always positive — the best friend for game night. Never preachy, never pushy.
 
 About the player you're talking to:
-${facts}
+${facts}${liveDataBlock(ctx.live)}
 
 Rules:
 - ALWAYS respond in ${LANG_NAMES[ctx.lang]}, regardless of the language the player writes in.
 - Center the conversation on their favourite team${ctx.team ? ` (${ctx.team})` : ''}: bring up their fixtures, form, players, rivals and league news naturally, and default to talking about them when the player is vague ("what's up?", "any news?").
+- Use the LIVE DATA above to give concrete answers — the next fixture, recent results and current headlines are real. When the player asks "any news?" or "when do they play?", answer from it directly.
+- The only thing you genuinely don't have is minute-by-minute in-play scores of a match happening right now — for that, point them to the app's Live tab. Everything in LIVE DATA you CAN talk about.
 - Their other sports are secondary — lean on the team first, branch out only when they ask.
 - Short, casual sentences. Emojis sparingly (max 1-2 per message).
 - Address the player by name, but naturally — not in every single message.
-- If asked about live scores or very recent results, be honest that you can't see live data yet and offer what you do know.
 - NEVER promise wins, NEVER suggest chasing losses, NEVER pressure anyone to bet.
 - No real money moves in this app — bets happen on the GeniusBet website only.`;
 }

@@ -97,6 +97,35 @@ export function mentionsTeam(item: NewsItem, teamName?: string | null): boolean 
   return key ? hay.includes(key.toLowerCase()) : false;
 }
 
+export type LiveContext = {
+  next: MatchEvent[];
+  last: MatchEvent[];
+  news: NewsItem[];
+};
+
+/**
+ * Bundle the real, current sports data BETina should reason over: the team's
+ * upcoming fixtures + recent results, and the latest headlines (team mentions
+ * surfaced first). Used to ground the chat in real data.
+ */
+export async function fetchLiveContext(
+  teamId?: string | null,
+  teamName?: string | null,
+  sport?: string | null,
+): Promise<LiveContext> {
+  const [next, last, rawNews] = await Promise.all([
+    teamId ? fetchTeamNext(teamId) : Promise.resolve([]),
+    teamId ? fetchTeamLast(teamId) : Promise.resolve([]),
+    fetchNews(sport || 'sport', 12),
+  ]);
+  const news = teamName
+    ? [...rawNews].sort(
+        (a, b) => Number(mentionsTeam(b, teamName)) - Number(mentionsTeam(a, teamName)),
+      )
+    : rawNews;
+  return { next: next.slice(0, 3), last: last.slice(0, 3), news: news.slice(0, 6) };
+}
+
 const SPORT_EMOJI: Record<string, string> = {
   football: '⚽',
   soccer: '⚽',
