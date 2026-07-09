@@ -1,9 +1,10 @@
 import { useI18n } from '../../src/lib/i18n';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
+import { registerForPush } from '../../src/lib/push';
 import { Colors, Fonts } from '../../src/theme';
 
 type TabMeta = { emoji: string; labelKey: keyof any };
@@ -68,6 +69,11 @@ function GlassTabBar({ state, navigation }: TabBarProps) {
 }
 
 export default function TabsLayout() {
+  // Register this device for push once the player is in the app.
+  useEffect(() => {
+    registerForPush();
+  }, []);
+
   return (
     <Tabs
       tabBar={(props) => <GlassTabBar {...props} />}
