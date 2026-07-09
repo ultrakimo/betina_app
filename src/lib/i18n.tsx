@@ -158,6 +158,12 @@ type Translations = {
   notifMarkRead: string;
   notifToday: string;
   notifYesterday: string;
+  notifEarlier: string;
+  notifStatusTitle: string;
+  notifStatusBody: string;
+  notifStreakTitle: string;
+  notifStreakBody: string;
+  notifEmpty: string;
   // Tiers
   tiersTitle: string;
   tiersSubtitle: string;
@@ -321,6 +327,12 @@ const T: Record<LangCode, Translations> = {
     notifMarkRead: 'Mark all read',
     notifToday: 'TODAY',
     notifYesterday: 'YESTERDAY',
+    notifEarlier: "Earlier",
+    notifStatusTitle: "Your progress",
+    notifStatusBody: "{n} XP to {tier}",
+    notifStreakTitle: "Streak alive",
+    notifStreakBody: "Day {n} — keep it going!",
+    notifEmpty: "You're all caught up. I'll ping you when something happens. 💬",
     tiersTitle: 'VIP Tiers',
     tiersSubtitle: 'Earn XP by staying active — never by spending.',
     tiersCashback: 'CASHBACK',
@@ -465,6 +477,12 @@ const T: Record<LangCode, Translations> = {
     notifMarkRead: 'Alle als gelesen markieren',
     notifToday: 'HEUTE',
     notifYesterday: 'GESTERN',
+    notifEarlier: "Früher",
+    notifStatusTitle: "Dein Fortschritt",
+    notifStatusBody: "{n} XP bis {tier}",
+    notifStreakTitle: "Serie läuft",
+    notifStreakBody: "Tag {n} — bleib dran!",
+    notifEmpty: "Alles gelesen. Ich melde mich, sobald was passiert. 💬",
     tiersTitle: 'VIP-Stufen',
     tiersSubtitle: 'Verdiene XP durch Aktivität — nie durchs Geldausgeben.',
     tiersCashback: 'CASHBACK',
@@ -609,6 +627,12 @@ const T: Record<LangCode, Translations> = {
     notifMarkRead: 'Marcar todo como leído',
     notifToday: 'HOY',
     notifYesterday: 'AYER',
+    notifEarlier: "Antes",
+    notifStatusTitle: "Tu progreso",
+    notifStatusBody: "{n} XP para {tier}",
+    notifStreakTitle: "Racha activa",
+    notifStreakBody: "Día {n} — ¡sigue así!",
+    notifEmpty: "Estás al día. Te aviso cuando pase algo. 💬",
     tiersTitle: 'Niveles VIP',
     tiersSubtitle: 'Gana XP con tu actividad — nunca gastando.',
     tiersCashback: 'CASHBACK',
@@ -753,6 +777,12 @@ const T: Record<LangCode, Translations> = {
     notifMarkRead: 'Marcar tudo como lido',
     notifToday: 'HOJE',
     notifYesterday: 'ONTEM',
+    notifEarlier: "Antes",
+    notifStatusTitle: "Seu progresso",
+    notifStatusBody: "{n} XP para {tier}",
+    notifStreakTitle: "Sequência ativa",
+    notifStreakBody: "Dia {n} — continue assim!",
+    notifEmpty: "Tudo em dia. Te aviso quando algo acontecer. 💬",
     tiersTitle: 'Níveis VIP',
     tiersSubtitle: 'Ganhe XP sendo ativo — nunca gastando.',
     tiersCashback: 'CASHBACK',
@@ -897,6 +927,12 @@ const T: Record<LangCode, Translations> = {
     notifMarkRead: 'Tout marquer comme lu',
     notifToday: "AUJOURD'HUI",
     notifYesterday: 'HIER',
+    notifEarlier: "Plus tôt",
+    notifStatusTitle: "Ta progression",
+    notifStatusBody: "{n} XP jusqu'à {tier}",
+    notifStreakTitle: "Série en cours",
+    notifStreakBody: "Jour {n} — continue !",
+    notifEmpty: "Tout est à jour. Je te préviens dès qu'il se passe quelque chose. 💬",
     tiersTitle: 'Niveaux VIP',
     tiersSubtitle: "Gagnez de l'XP en restant actif — jamais en dépensant.",
     tiersCashback: 'CASHBACK',
@@ -1041,6 +1077,12 @@ const T: Record<LangCode, Translations> = {
     notifMarkRead: 'Segna tutte come lette',
     notifToday: 'OGGI',
     notifYesterday: 'IERI',
+    notifEarlier: "Prima",
+    notifStatusTitle: "I tuoi progressi",
+    notifStatusBody: "{n} XP a {tier}",
+    notifStreakTitle: "Serie attiva",
+    notifStreakBody: "Giorno {n} — continua così!",
+    notifEmpty: "Sei aggiornato. Ti avviso appena succede qualcosa. 💬",
     tiersTitle: 'Livelli VIP',
     tiersSubtitle: 'Guadagna XP restando attivo — mai spendendo.',
     tiersCashback: 'CASHBACK',
@@ -1185,6 +1227,12 @@ const T: Record<LangCode, Translations> = {
     notifMarkRead: 'Marchează tot ca citit',
     notifToday: 'AZI',
     notifYesterday: 'IERI',
+    notifEarlier: "Mai devreme",
+    notifStatusTitle: "Progresul tău",
+    notifStatusBody: "{n} XP până la {tier}",
+    notifStreakTitle: "Serie activă",
+    notifStreakBody: "Ziua {n} — ține-o tot așa!",
+    notifEmpty: "Ești la zi. Te anunț când se întâmplă ceva. 💬",
     tiersTitle: 'Niveluri VIP',
     tiersSubtitle: 'Câștigă XP fiind activ — niciodată cheltuind.',
     tiersCashback: 'CASHBACK',

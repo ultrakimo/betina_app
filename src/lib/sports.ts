@@ -79,6 +79,19 @@ export function sportEmoji(sport?: string | null): string {
   return SPORT_EMOJI[sport.toLowerCase()] ?? '⚽';
 }
 
+/** "Just now" / "3h ago" / "2d ago" — labels passed in for i18n. */
+export function timeAgo(
+  dateStr: string,
+  labels: { justNow: string; hours: string; days: string },
+): string {
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return '';
+  const diffH = (Date.now() - d.getTime()) / 3_600_000;
+  if (diffH < 1) return labels.justNow;
+  if (diffH < 24) return labels.hours.replace('{n}', String(Math.floor(diffH)));
+  return labels.days.replace('{n}', String(Math.floor(diffH / 24)));
+}
+
 /**
  * Human-friendly kickoff label relative to now:
  * "Today · 21:00", "Tomorrow · 12:00", or "Fri, 24 Jul · 12:00".
