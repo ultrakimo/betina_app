@@ -7,12 +7,13 @@
 
 export const COMPANY = {
   legalName: 'Genius Media London Ltd',
-  address: '{{REGISTERED_ADDRESS}}',
-  companyNumber: '{{COMPANY_NUMBER}}',
-  contactEmail: '{{CONTACT_EMAIL}}',
-  privacyEmail: '{{PRIVACY_EMAIL}}',
-  effectiveDate: '{{EFFECTIVE_DATE}}',
+  address: 'Unit 3, Cedar Court, 1 Royal Oak Yard, London, England SE1 3GA',
+  companyNumber: '11133948',
+  contactEmail: 'marketing@geniusbet.com',
+  privacyEmail: 'marketing@geniusbet.com',
+  effectiveDate: '9 July 2026',
   governingLaw: 'England and Wales',
+  directors: 'Thomas De Bruyne, Dejan Morawietz',
 };
 
 export type LegalSection = { heading: string; body: string };
@@ -107,7 +108,11 @@ export const LEGAL_DOCS: Record<LegalDocKey, LegalDoc> = {
     sections: [
       {
         heading: 'Company',
-        body: `${COMPANY.legalName}\n${COMPANY.address}\nCompany number: ${COMPANY.companyNumber}`,
+        body: `${COMPANY.legalName}\n${COMPANY.address}\nRegistered in England and Wales, company no. ${COMPANY.companyNumber}`,
+      },
+      {
+        heading: 'Directors',
+        body: COMPANY.directors,
       },
       {
         heading: 'Contact',
