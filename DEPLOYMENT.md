@@ -165,11 +165,25 @@ $$);
 
 ---
 
-## 5. 🤖 CLAUDE-KEY IN PRODUKTION (empfohlen)
+## 5. 🤖 CLAUDE-CHAT — Edge Function deployen (Key ist raus aus der App)
 
-Aktuell steckt der Claude-Key im App-Bundle. Für den Release besser: **Chat über einen Server proxien**, damit der Key nie ausgeliefert wird.
-- [ ] Entscheidung: bleibt der Key vorerst im Bundle (nur für Testflight/Beta) **oder** wird eine Supabase Edge Function `chat` gebaut, die den Claude-Call macht?
-- Wenn Server-Proxy gewünscht: Claude baut die Edge Function + stellt die App darauf um. Nur sagen.
+✅ **Erledigt (App-Seite):** Der Claude-Key steckt **nicht mehr** im App-Bundle. Die App ruft jetzt die Edge Function `chat` auf (`supabase.functions.invoke('chat')`), die den Key hält und den kompletten Tool-Loop (Team-/News-Suche, Gedächtnis, Reminder) server-seitig macht. Ohne Login zeigt die App Demo-Antworten.
+
+**Du musst nur noch deployen:**
+```bash
+# Key als Secret setzen (der NEUE, rotierte Key aus Abschnitt 1):
+supabase secrets set ANTHROPIC_API_KEY=<neuer_rotierter_key>
+
+# Function deployen — JWT-Verifizierung AN (Default), damit nur eingeloggte
+# User dein Claude-Budget nutzen können:
+supabase functions deploy chat
+```
+- [ ] `ANTHROPIC_API_KEY`-Secret gesetzt.
+- [ ] Function `chat` deployed.
+- [ ] Test: in der App (eingeloggt) etwas fragen → echte Claude-Antwort. Vorher (oder ohne Login) kommen Demo-Antworten.
+
+> `SUPABASE_URL` und `SUPABASE_ANON_KEY` werden von Supabase automatisch in die Function injiziert — musst du nicht setzen.
+> Die `EXPO_PUBLIC_CLAUDE_API_KEY`-Variable in der App-`.env` wird nicht mehr gebraucht (kann leer bleiben/raus) — der Key gehört jetzt nur noch als Function-Secret auf den Server.
 
 ---
 
@@ -221,9 +235,10 @@ eas build --platform ios      # bzw. android
 |---|---|---|
 | `EXPO_PUBLIC_SUPABASE_URL` | App `.env` + EAS Secret | `https://djnmrvhdklpclbrhxxqs.supabase.co` |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | App `.env` + EAS Secret | euer anon key |
-| `EXPO_PUBLIC_CLAUDE_API_KEY` | App `.env` + EAS Secret | **neuer** rotierter Key |
-| `SUPABASE_URL` | Edge Function Secret | `https://<ref>.supabase.co` |
-| `SUPABASE_SERVICE_ROLE_KEY` | Edge Function Secret | euer service_role key (nur Server!) |
+| `ANTHROPIC_API_KEY` | **Edge Function Secret** (`chat`) | **neuer** rotierter Key — gehört NICHT mehr in die App |
+| `SUPABASE_SERVICE_ROLE_KEY` | Edge Function Secret (`match-alerts`, `reminders-due`) | euer service_role key (nur Server!) |
+
+> `SUPABASE_URL` / `SUPABASE_ANON_KEY` werden in Edge Functions automatisch injiziert. `EXPO_PUBLIC_CLAUDE_API_KEY` wird in der App nicht mehr genutzt.
 
 ---
 
