@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
 import { supabase } from '../lib/supabase';
 
 export type Profile = {
@@ -21,9 +22,7 @@ export function useProfile() {
   const [phone, setPhone] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { load(); }, []);
-
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
@@ -37,7 +36,16 @@ export function useProfile() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  return { profile, phone, loading, reload: load };
+  // Reload whenever the screen regains focus so XP/streak earned elsewhere
+  // (chat, daily login) show up without a manual refresh.
+  useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  /** Optimistically nudge the local XP total for an instant UI response. */
+  const bumpXp = useCallback((delta: number) => {
+    setProfile((p) => (p ? { ...p, xp_points: (p.xp_points ?? 0) + delta } : p));
+  }, []);
+
+  return { profile, phone, loading, reload: load, bumpXp };
 }

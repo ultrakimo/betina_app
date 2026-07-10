@@ -27,6 +27,7 @@ import GlowCard from '../../src/components/GlowCard';
 import ScreenBg from '../../src/components/ScreenBg';
 import { askBetina } from '../../src/lib/claude';
 import { fetchMemories } from '../../src/lib/memory';
+import { XP_REWARDS, awardChatXp } from '../../src/lib/xp';
 import { LiveContext, fetchLiveContext, parseSports } from '../../src/lib/sports';
 import { supabase } from '../../src/lib/supabase';
 import { useProfile } from '../../src/hooks/useProfile';
@@ -61,7 +62,7 @@ function TypingDot({ delay }: { delay: number }) {
 
 export default function Chat() {
   const { t, lang } = useI18n();
-  const { profile } = useProfile();
+  const { profile, bumpXp } = useProfile();
   const userName = profile?.name ?? 'friend';
   const quickReplies = [t.chatQuick1, t.chatQuick2, t.chatQuick3];
   const insets = useSafeAreaInsets();
@@ -160,6 +161,11 @@ export default function Chat() {
 
     const history = [...messages, userMsg].map(({ role, content }) => ({ role, content }));
     persist('user', trimmed);
+
+    // +1 XP for the message: bump the UI instantly, persist in the background.
+    // If the write fails it self-corrects on the next focus reload.
+    bumpXp(XP_REWARDS.chatMessage);
+    awardChatXp();
 
     const reply = await askBetina(history, {
       name: userName,

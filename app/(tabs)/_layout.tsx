@@ -5,6 +5,7 @@ import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { registerForPush } from '../../src/lib/push';
+import { claimDailyLogin } from '../../src/lib/xp';
 import { Colors, Fonts } from '../../src/theme';
 
 type TabMeta = { emoji: string; labelKey: keyof any };
@@ -69,9 +70,11 @@ function GlassTabBar({ state, navigation }: TabBarProps) {
 }
 
 export default function TabsLayout() {
-  // Register this device for push once the player is in the app.
+  // Register this device for push, and grant the daily open reward (server
+  // enforces once-per-day), once the player enters the app.
   useEffect(() => {
     registerForPush();
+    claimDailyLogin();
   }, []);
 
   return (

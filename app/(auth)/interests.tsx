@@ -21,6 +21,7 @@ import ScreenBg from '../../src/components/ScreenBg';
 import { sports } from '../../src/lib/demo';
 import { SPORT_KEYS, useI18n } from '../../src/lib/i18n';
 import { supabase } from '../../src/lib/supabase';
+import { claimProfileCompleted } from '../../src/lib/xp';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
 type Team = {
@@ -95,6 +96,8 @@ export default function Interests() {
           favourite_team_sport: selectedTeam?.strSport ?? null,
           favourite_team_league: selectedTeam?.strLeague ?? null,
         });
+        // One-time +20 XP for finishing onboarding (server grants it once).
+        await claimProfileCompleted();
       }
     }
     setLoading(false);

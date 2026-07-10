@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useI18n } from '../../src/lib/i18n';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import AnimatedNumber from '../../src/components/AnimatedNumber';
@@ -51,9 +51,8 @@ export default function Home() {
   const [fixtures, setFixtures] = useState<MatchEvent[]>([]);
   const [loadingFixtures, setLoadingFixtures] = useState(false);
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
+  // Reload on focus so XP/tier earned in chat or on daily open show up here.
+  useFocusEffect(useCallback(() => { loadProfile(); }, []));
 
   const loadProfile = async () => {
     try {
