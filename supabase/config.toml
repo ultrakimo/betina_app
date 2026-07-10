@@ -1,0 +1,9 @@
+project_id = "djnmrvhdklpclbrhxxqs"
+
+# The `chat` function verifies the caller's Supabase JWT itself
+# (supabase.auth.getUser inside the handler). We disable the platform-level
+# JWT check so the browser's CORS *preflight* (an OPTIONS request that carries
+# no Authorization header) reaches our handler instead of being rejected with a
+# header-less 401 — which is what the browser reports as a "CORS error".
+[functions.chat]
+verify_jwt = false
