@@ -1,6 +1,6 @@
 import { useI18n } from '../../src/lib/i18n';
 import React, { useEffect } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { AppState, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -71,10 +71,16 @@ function GlassTabBar({ state, navigation }: TabBarProps) {
 
 export default function TabsLayout() {
   // Register this device for push, and grant the daily open reward (server
-  // enforces once-per-day), once the player enters the app.
+  // enforces once-per-day), once the player enters the app. Re-run push
+  // registration whenever the app returns to the foreground so a token gets
+  // saved even if the first attempt failed (e.g. permission granted later).
   useEffect(() => {
     registerForPush();
     claimDailyLogin();
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') registerForPush();
+    });
+    return () => sub.remove();
   }, []);
 
   return (
