@@ -7,3 +7,14 @@ project_id = "djnmrvhdklpclbrhxxqs"
 # header-less 401 — which is what the browser reports as a "CORS error".
 [functions.chat]
 verify_jwt = false
+
+# Cron-invoked (pg_cron/pg_net) with the service-role key — no user JWT, so the
+# platform JWT check must be off. The functions run server-to-server only.
+[functions.proactive-triggers]
+verify_jwt = false
+
+[functions.match-alerts]
+verify_jwt = false
+
+[functions.reminders-due]
+verify_jwt = false

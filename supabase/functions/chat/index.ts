@@ -60,7 +60,11 @@ function memoryBlock(memories?: string[]): string {
   if (!memories?.length) return '';
   return `\n\nWHAT YOU REMEMBER about them (weave in naturally, don't recite):\n${memories.map((m) => `  • ${m}`).join('\n')}`;
 }
-function systemPrompt(ctx: Ctx): string {
+function notificationsBlock(notes?: string[]): string {
+  if (!notes?.length) return '';
+  return `\n\nNOTIFICATIONS YOU RECENTLY SENT them (newest first) — you know what you already told them, so don't repeat it as if it's new; you can naturally follow up on it:\n${notes.map((n) => `  • ${n}`).join('\n')}`;
+}
+function systemPrompt(ctx: Ctx, recentNotes?: string[]): string {
   const facts = [
     `- Name: ${ctx.name}`,
     ctx.team ? `- Favourite team: ${ctx.team}${ctx.teamLeague ? ` (${ctx.teamLeague}${ctx.teamSport ? `, ${ctx.teamSport}` : ''})` : ''}` : null,
@@ -80,7 +84,7 @@ Tone & style:
 - Address the player by name now and then, warmly — not in every message.
 
 About the player you're talking to:
-${facts}${memoryBlock(ctx.memories)}${liveDataBlock(ctx.live)}
+${facts}${memoryBlock(ctx.memories)}${notificationsBlock(recentNotes)}${liveDataBlock(ctx.live)}
 
 Rules:
 - Respond in ${lang} by default; if the player clearly writes in another language, match theirs.
@@ -187,9 +191,26 @@ Deno.serve(async (req) => {
     const trimmed = firstUser === -1 ? [] : history.slice(firstUser).slice(-24);
     if (!trimmed.length) return new Response(JSON.stringify({ reply: '' }), { headers: { ...CORS, 'Content-Type': 'application/json' } });
 
+    // What BETina has recently pushed to this player, so she stays consistent
+    // with her own notifications instead of re-announcing them.
+    let recentNotes: string[] = [];
+    try {
+      const { data: notes } = await supabase
+        .from('notifications')
+        .select('title, body, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      recentNotes = (notes ?? []).map((n) =>
+        `${n.title ? n.title + ': ' : ''}${n.body ?? ''}`.trim(),
+      ).filter(Boolean);
+    } catch (_) {
+      // non-fatal — chat works without notification history
+    }
+
     // deno-lint-ignore no-explicit-any
     const messages: any[] = trimmed.map((m) => ({ role: m.role, content: m.content }));
-    const system = systemPrompt(ctx);
+    const system = systemPrompt(ctx, recentNotes);
 
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
       const response = await callClaude(system, messages);
