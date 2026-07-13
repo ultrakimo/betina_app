@@ -14,6 +14,7 @@
     },
     "android": {
       "package": "com.geniusbet.betina",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#0A0A0F",
         "foregroundImage": "./assets/android-icon-foreground.png",
