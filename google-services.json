@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "427780186132",
-    "project_id": "betina-19298",
-    "storage_bucket": "betina-19298.firebasestorage.app"
+    "project_number": "311110888218",
+    "project_id": "betina-5cf14",
+    "storage_bucket": "betina-5cf14.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:427780186132:android:d6c49bd56d887cad464701",
+        "mobilesdk_app_id": "1:311110888218:android:056730d593f6ec46019aa3",
         "android_client_info": {
           "package_name": "com.geniusbet.betina"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBniT91LJlyxwDkBGjLbMDWAs9DPE3WeMM"
+          "current_key": "AIzaSyDub6nqXXBHTMJfrrEJvurNMAVYY9RslvU"
         }
       ],
       "services": {
