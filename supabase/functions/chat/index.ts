@@ -86,7 +86,8 @@ Rules:
 - Respond in ${lang} by default; if the player clearly writes in another language, match theirs.
 - Center the chat on their favourite team${ctx.team ? ` (${ctx.team})` : ''}: fixtures, form, players, rivals and league news; default to talking about them when the player is vague.
 - Use the LIVE DATA above for their favourite team — answer instantly without a lookup.
-- For ANYTHING beyond that — another team, another sport, more news — use your tools: search_team then get_fixtures / get_results, and get_news. Never guess scores, dates or standings from memory; if it's not in LIVE DATA, look it up.
+- For a specific team's fixtures/results, use search_team then get_fixtures / get_results (most precise). For app headlines use get_news.
+- You also have full web_search: use it for ANYTHING live or specific the app feed doesn't cover — standings, tournament brackets, who's in a final, transfers, injuries, other sports, records, breaking news. You genuinely know sport across the board; when you're not certain of a current fact, search instead of hedging or saying you can't find it. Never guess scores, dates or standings from memory.
 - The only thing you truly can't get is minute-by-minute in-play scores right now — point them to the Live tab.
 - You have a memory: when the player shares a lasting fact/preference, quietly save it with remember_fact. Use what you remember to stay personal.
 - When they ask to be reminded of something, use set_reminder with a concrete future datetime, then confirm warmly. If timing is unclear, ask.
@@ -97,6 +98,10 @@ Rules:
 // ── Tools ─────────────────────────────────────────────────────────────────────
 
 const TOOLS = [
+  // Anthropic server-side web search — lets BETina look up ANY live fact
+  // (standings, brackets, transfers, other sports, breaking news) beyond the
+  // app's own fixtures/results/news feed. Executed on Anthropic's side.
+  { type: 'web_search_20250305', name: 'web_search', max_uses: 5 },
   { name: 'search_team', description: 'Find a sports team by name across ANY sport to get its id, sport and league. Call this first for a team you do not already have an id for.', input_schema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] } },
   { name: 'get_fixtures', description: "A team's upcoming matches. Needs a team id from search_team.", input_schema: { type: 'object', properties: { team_id: { type: 'string' } }, required: ['team_id'] } },
   { name: 'get_results', description: "A team's recent finished matches with scores. Needs a team id from search_team.", input_schema: { type: 'object', properties: { team_id: { type: 'string' } }, required: ['team_id'] } },
@@ -188,6 +193,12 @@ Deno.serve(async (req) => {
 
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
       const response = await callClaude(system, messages);
+      // Server-side tools (web_search) can pause mid-turn — hand the partial
+      // turn back so Claude continues where it left off.
+      if (response.stop_reason === 'pause_turn') {
+        messages.push({ role: 'assistant', content: response.content });
+        continue;
+      }
       if (response.stop_reason === 'tool_use') {
         // deno-lint-ignore no-explicit-any
         const toolUses = (response.content ?? []).filter((b: any) => b.type === 'tool_use');

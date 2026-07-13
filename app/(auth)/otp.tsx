@@ -210,25 +210,27 @@ const styles = StyleSheet.create({
   },
   otpRow: {
     flexDirection: 'row',
-    gap: Spacing.md,
+    gap: Spacing.sm,
     justifyContent: 'center',
   },
   otpBox: {
-    width: 62,
-    height: 72,
+    // Flexible width so all six boxes always fit the screen; capped on tablets.
+    flex: 1,
+    maxWidth: 58,
+    aspectRatio: 0.84,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.glass,
     borderWidth: 1,
     borderColor: Colors.glassBorder,
-    borderRadius: 20,
+    borderRadius: 16,
   },
   otpBoxActive: {
     borderColor: 'rgba(191,255,0,0.55)',
   },
   otpDigit: {
     color: '#FFFFFF',
-    fontSize: 28,
+    fontSize: 26,
     fontFamily: Fonts.bold,
   },
   cursor: {
