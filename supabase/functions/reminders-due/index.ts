@@ -17,7 +17,9 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const EXPO_PUSH = 'https://exp.host/--/api/v2/push/send';
+const EXPO_PUSH    = 'https://exp.host/--/api/v2/push/send';
+const SMSEAGLE_URL   = Deno.env.get('SMSEAGLE_URL') ?? '';
+const SMSEAGLE_TOKEN = Deno.env.get('SMSEAGLE_TOKEN') ?? '';
 
 type Reminder = {
   id: string;
@@ -32,6 +34,18 @@ async function sendPush(token: string, title: string, body: string) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ to: token, title, body, sound: 'default' }),
   });
+}
+
+async function sendSms(phone: string, body: string) {
+  if (!SMSEAGLE_URL || !SMSEAGLE_TOKEN) return;
+  const text = body.length > 155 ? body.slice(0, 152) + '...' : body;
+  try {
+    await fetch(SMSEAGLE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SMSEAGLE_TOKEN}` },
+      body: JSON.stringify({ to: [phone], text }),
+    });
+  } catch (_) { /* non-fatal */ }
 }
 
 Deno.serve(async () => {
@@ -64,12 +78,15 @@ Deno.serve(async () => {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('push_token')
+        .select('push_token, phone_normalized, phone')
         .eq('id', rem.user_id)
         .maybeSingle();
 
       if (profile?.push_token) {
         await sendPush(profile.push_token, 'BETina 💬', rem.text);
+      } else {
+        const smsPhone = profile?.phone_normalized ?? profile?.phone ?? null;
+        if (smsPhone) await sendSms(smsPhone, `BETina 💬 ${rem.text}`);
       }
       sent++;
     } catch (_e) {
