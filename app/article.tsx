@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as WebBrowser from 'expo-web-browser';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useI18n } from '../src/lib/i18n';
@@ -28,8 +29,9 @@ type Article = {
   url: string;
 };
 
-function readingTime(paragraphs: string[]) {
-  const words = paragraphs.join(' ').split(/\s+/).length;
+function readingTime(paragraphs?: string[]) {
+  if (!paragraphs?.length) return 1;
+  const words = paragraphs.join(' ').split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(words / 200));
 }
 
@@ -56,7 +58,26 @@ export default function ArticleScreen() {
     if (!url) return;
     fetch(`${API}/api/sports/article?url=${encodeURIComponent(url)}`)
       .then((r) => r.json())
-      .then((d) => { setArticle(d); setLoading(false); })
+      .then((d) => {
+        // The scraper can fail (e.g. Google News redirect links) and return an
+        // error object or partial data. Normalise, and only error out if there
+        // is nothing at all to show.
+        const paragraphs = Array.isArray(d?.paragraphs) ? d.paragraphs.filter((p: unknown) => typeof p === 'string') : [];
+        const hasContent = !d?.error && (paragraphs.length > 0 || d?.title || paramTitle);
+        if (!hasContent) {
+          setError(true);
+        } else {
+          setArticle({
+            title: d?.title ?? paramTitle ?? '',
+            image: typeof d?.image === 'string' ? d.image : '',
+            description: typeof d?.description === 'string' ? d.description : '',
+            paragraphs,
+            source: typeof d?.source === 'string' ? d.source : '',
+            url: typeof d?.url === 'string' ? d.url : url,
+          });
+        }
+        setLoading(false);
+      })
       .catch(() => { setError(true); setLoading(false); });
   }, [url]);
 
@@ -105,7 +126,7 @@ export default function ArticleScreen() {
               />
               {/* Source pill over hero */}
               <Animated.View entering={FadeInUp.delay(200).duration(400)} style={styles.sourcePill}>
-                <Text style={styles.sourcePillText}>📡 BBC Sport</Text>
+                <Text style={styles.sourcePillText}>📡 {article.source || 'News'}</Text>
               </Animated.View>
             </View>
 
@@ -140,6 +161,16 @@ export default function ArticleScreen() {
 
             {/* ── BODY ── */}
             <View style={styles.body}>
+              {article.paragraphs.length === 0 && (
+                <>
+                  {article.description ? null : (
+                    <Text style={styles.para}>{t.articleError}</Text>
+                  )}
+                  <Pressable onPress={() => WebBrowser.openBrowserAsync(article.url)} style={styles.openBtn}>
+                    <Text style={styles.openLabel}>Read full article ↗</Text>
+                  </Pressable>
+                </>
+              )}
               {article.paragraphs.map((para, i) => {
                 // Every ~4 paragraphs: pull-quote style for a sentence
                 const isPullQuote = i > 0 && i % 4 === 0 && para.length > 80;
@@ -253,6 +284,12 @@ const styles = StyleSheet.create({
 
   /* Body */
   body: { paddingHorizontal: Spacing.lg, gap: 16 },
+  openBtn: {
+    alignSelf: 'flex-start', marginTop: 4,
+    paddingHorizontal: 20, paddingVertical: 12, borderRadius: 999,
+    backgroundColor: Colors.glass, borderWidth: 1, borderColor: Colors.glassBorder,
+  },
+  openLabel: { color: '#FFF', fontFamily: Fonts.semibold, fontSize: Typography.sm },
   para: {
     color: 'rgba(255,255,255,0.82)', fontSize: Typography.sm + 2,
     fontFamily: Fonts.regular, lineHeight: 28,
