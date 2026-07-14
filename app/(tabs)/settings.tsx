@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as WebBrowser from 'expo-web-browser';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import GlowButton from '../../src/components/GlowButton';
 import GlowCard from '../../src/components/GlowCard';
@@ -14,7 +13,6 @@ import { LANGUAGES, LangCode, useI18n } from '../../src/lib/i18n';
 import { supabase } from '../../src/lib/supabase';
 import { Colors, Fonts, Spacing, Typography } from '../../src/theme';
 
-const RESPONSIBLE_GAMING_URL = 'https://www.begambleaware.org';
 
 function Row({
   emoji, label, value, onPress, right, last,
@@ -166,7 +164,7 @@ export default function Settings() {
           <SectionLabel>{t.settingsSupport}</SectionLabel>
           <GlowCard>
             <Row emoji="💡" label={t.settingsHelp} onPress={() => router.push('/help')} />
-            <Row emoji="🛡️" label={t.settingsResponsible} right={<Text style={styles.externalHint}>↗</Text>} onPress={() => WebBrowser.openBrowserAsync(RESPONSIBLE_GAMING_URL)} />
+            <Row emoji="🛡️" label={t.settingsResponsible} onPress={() => router.push('/responsible-gaming')} />
             <Row emoji="📄" label={t.settingsTermsPrivacy} onPress={() => router.push('/legal')} last />
           </GlowCard>
         </Animated.View>
@@ -246,7 +244,6 @@ const styles = StyleSheet.create({
   rowLabel: { flex: 1, color: '#FFF', fontSize: Typography.sm + 1, fontFamily: Fonts.semibold },
   rowValue: { color: Colors.textSecondary, fontSize: Typography.sm, fontFamily: Fonts.medium },
   rowChevron: { color: '#55556A', fontSize: Typography.sm + 1 },
-  externalHint: { color: '#55556A', fontSize: Typography.sm, fontFamily: Fonts.medium },
   divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.06)', marginHorizontal: 16 },
   version: { textAlign: 'center', color: '#3A3A4A', fontSize: Typography.xs, fontFamily: Fonts.medium, paddingTop: Spacing.xs },
 
