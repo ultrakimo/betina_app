@@ -49,9 +49,9 @@ export async function fetchTeamLast(teamId: string): Promise<MatchEvent[]> {
 }
 
 /** Latest news for a sport (BBC feed). Empty array on any error. */
-export async function fetchNews(sport: string, count = 10): Promise<NewsItem[]> {
+export async function fetchNews(sport: string, count = 10, lang = 'en'): Promise<NewsItem[]> {
   try {
-    const r = await fetch(`${SPORTS_API}/api/sports/news?sport=${sport}&count=${count}`);
+    const r = await fetch(`${SPORTS_API}/api/sports/news?sport=${sport}&count=${count}&lang=${lang}`);
     const d = await r.json();
     return d.items ?? [];
   } catch {
@@ -142,11 +142,12 @@ export async function fetchLiveContext(
   teamId?: string | null,
   teamName?: string | null,
   sport?: string | null,
+  lang = 'en',
 ): Promise<LiveContext> {
   const [next, last, rawNews] = await Promise.all([
     teamId ? fetchTeamNext(teamId) : Promise.resolve([]),
     teamId ? fetchTeamLast(teamId) : Promise.resolve([]),
-    fetchNews(sport || 'sport', 12),
+    fetchNews(sport || 'sport', 12, lang),
   ]);
   const news = teamName
     ? [...rawNews].sort(

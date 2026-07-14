@@ -48,7 +48,7 @@ function formatMatchDate(dateStr: string, timeStr: string) {
 }
 
 export default function Live() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { profile } = useProfile();
@@ -82,13 +82,13 @@ export default function Live() {
     setSport(filtered[0]?.id ?? 'sport');
   }, [profile?.favourite_sports]);
 
-  useEffect(() => { fetchNews(); }, [sport]);
+  useEffect(() => { fetchNews(); }, [sport, lang]);
   useEffect(() => { if (teamId) fetchTeamData(); }, [teamId]);
 
   const fetchNews = async () => {
     setLoadingNews(true);
     try {
-      const r = await fetch(`${API}/api/sports/news?sport=${sport}&count=12`);
+      const r = await fetch(`${API}/api/sports/news?sport=${sport}&count=12&lang=${lang}`);
       const d = await r.json();
       const items: NewsItem[] = d.items ?? [];
       // Surface anything about the player's team first (source is sport-wide)

@@ -146,9 +146,10 @@ export default function Chat() {
       profile.favourite_team_id,
       profile.favourite_team,
       profile.favourite_team_sport ?? profile.favourite_sport,
+      lang,
     ).then((ctx) => { if (active) setLive(ctx); });
     return () => { active = false; };
-  }, [profile?.favourite_team_id, profile?.favourite_team]);
+  }, [profile?.favourite_team_id, profile?.favourite_team, lang]);
 
   const send = async (text: string) => {
     const trimmed = text.trim();

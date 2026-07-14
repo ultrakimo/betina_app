@@ -159,7 +159,7 @@ export default function Notifications() {
       }
 
       // 4. Latest sports headlines
-      const news = await fetchNews('sport', 3);
+      const news = await fetchNews('sport', 3, lang);
       news.slice(0, 2).forEach((n, i) => {
         const ts = new Date(n.pubDate).getTime();
         feed.push({
