@@ -26,6 +26,8 @@ import {
 import { normalizePhone } from '../_shared/phone.ts';
 
 const EXPO_PUSH = 'https://exp.host/--/api/v2/push/send';
+const SMSEAGLE_URL = Deno.env.get('SMSEAGLE_URL') ?? '';
+const SMSEAGLE_TOKEN = Deno.env.get('SMSEAGLE_TOKEN') ?? '';
 const SPORTS_API = 'https://intelligence.geniusbet.com';
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') ?? '';
 const MODEL = 'claude-sonnet-5';
@@ -308,6 +310,36 @@ async function sendPush(token: string, body: string) {
   });
 }
 
+// SMS fallback via SMSEagle for users without a push token (e.g. web users).
+async function sendSms(phone: string, body: string): Promise<void> {
+  if (!SMSEAGLE_URL || !SMSEAGLE_TOKEN) return;
+  const text = body.length > 155 ? body.slice(0, 152) + '...' : body; // SMS ~160 char limit
+  try {
+    await fetch(SMSEAGLE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SMSEAGLE_TOKEN}` },
+      body: JSON.stringify({ to: [{ number: phone }], text }),
+    });
+  } catch (_) {
+    // non-fatal — delivery failure shouldn't break the sweep
+  }
+}
+
+// Push if a token exists, otherwise SMS to the (E.164) phone. Returns the
+// channel actually used, or 'none' if the player can't be reached.
+async function deliver(pf: ProfileRow, crmPhone: string | null, body: string): Promise<'push' | 'sms' | 'none'> {
+  if (pf.push_token) {
+    await sendPush(pf.push_token, body);
+    return 'push';
+  }
+  const smsPhone = crmPhone ?? pf.phone_normalized ?? normalizePhone(pf.phone ?? '');
+  if (smsPhone && smsPhone !== '+') {
+    await sendSms(smsPhone, body);
+    return 'sms';
+  }
+  return 'none';
+}
+
 // ── Sweep ─────────────────────────────────────────────────────────────────────
 Deno.serve(async () => {
   // deno-lint-ignore no-explicit-any
@@ -322,7 +354,7 @@ Deno.serve(async () => {
   const { data: users } = await supabase
     .from('profiles')
     .select('id, name, phone, phone_normalized, push_token, language, favourite_team_id, created_at, notify_betina')
-    .not('push_token', 'is', null);
+    .or('push_token.not.is.null,phone.not.is.null'); // push users OR users with a phone (SMS fallback)
 
   let sent = 0;
 
@@ -343,9 +375,11 @@ Deno.serve(async () => {
         if ((prior?.length ?? 0) > 0) continue;
         const body = await generateMessage(pf.language ?? 'en', pf.name ?? '', 'Welcome them to GeniusBet as BETina, their new personal companion. Warm, excited, one line.');
         if (!body) continue;
-        await supabase.from('notifications').insert({ user_id: pf.id, type: 'BT-001', title: 'BETina', body });
-        if (pf.push_token) await sendPush(pf.push_token, body);
-        sent++;
+        const ch1 = await deliver(pf, null, body);
+        if (ch1 !== 'none') {
+          await supabase.from('notifications').insert({ user_id: pf.id, type: 'BT-001', title: 'BETina', body });
+          sent++;
+        }
         continue;
       }
 
@@ -384,10 +418,12 @@ Deno.serve(async () => {
         const body = await generateMessage(player.preferred_language ?? pf.language ?? 'en', pf.name ?? player.username ?? '', trig.brief(ctx));
         if (!body) continue;
 
+        const ch2 = await deliver(pf, phone, body);
         await supabase.from('notifications').insert({ user_id: pf.id, type: trig.id, title: 'BETina', body });
-        await logTrigger(phone, trig.id, 'push');
-        if (pf.push_token) await sendPush(pf.push_token, body);
-        sent++;
+        if (ch2 !== 'none') {
+          await logTrigger(phone, trig.id, ch2); // real channel: 'push' or 'sms'
+          sent++;
+        }
         break; // one proactive message per user per run
       }
     } catch (_e) {
