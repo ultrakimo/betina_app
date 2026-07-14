@@ -318,7 +318,7 @@ async function sendSms(phone: string, body: string): Promise<void> {
     await fetch(SMSEAGLE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SMSEAGLE_TOKEN}` },
-      body: JSON.stringify({ to: [{ number: phone }], text }),
+      body: JSON.stringify({ to: [phone], text }),
     });
   } catch (_) {
     // non-fatal — delivery failure shouldn't break the sweep
