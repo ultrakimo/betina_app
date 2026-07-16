@@ -72,7 +72,7 @@ export default function Splash() {
         <Animated.View entering={FadeInDown.delay(900).duration(1000)} style={styles.loadTrack}>
           <Animated.View style={[styles.loadFill, barStyle]}>
             <LinearGradient
-              colors={['#8FCC00', Colors.primary]}
+              colors={['#8FB81E', Colors.primary]}
               start={{ x: 0, y: 0.5 }}
               end={{ x: 1, y: 0.5 }}
               style={StyleSheet.absoluteFill}

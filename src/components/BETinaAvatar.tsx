@@ -23,9 +23,9 @@ type Props = {
 };
 
 const RING_COLORS: Record<NonNullable<Props['variant']>, [string, string, ...string[]]> = {
-  default: [Colors.primary, 'rgba(107,33,168,0.9)'],
-  gold: [Colors.gold, Colors.primary, 'rgba(107,33,168,0.9)'],
-  celebrate: [Colors.primary, '#D4FF4D', 'rgba(107,33,168,0.9)'],
+  default: [Colors.primary, 'rgba(139,92,246,0.9)'],
+  gold: [Colors.gold, Colors.primary, 'rgba(139,92,246,0.9)'],
+  celebrate: [Colors.primary, '#D4FF4D', 'rgba(139,92,246,0.9)'],
 };
 
 function PulseRing({ size, delay, color }: { size: number; delay: number; color: string }) {
@@ -67,8 +67,8 @@ export default function BETinaAvatar({
     <View style={[{ width: size, height: size }, style]}>
       {pulse && (
         <>
-          <PulseRing size={size} delay={0} color="rgba(191,255,0,0.5)" />
-          <PulseRing size={size} delay={1300} color="rgba(107,33,168,0.6)" />
+          <PulseRing size={size} delay={0} color="rgba(184,233,38,0.5)" />
+          <PulseRing size={size} delay={1300} color="rgba(139,92,246,0.6)" />
         </>
       )}
       <LinearGradient

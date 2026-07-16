@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.glass, borderWidth: 1, borderColor: Colors.glassBorder,
     borderRadius: 999, paddingVertical: 11, paddingHorizontal: 18,
   },
-  chipActive: { backgroundColor: 'rgba(191,255,0,0.14)', borderColor: 'rgba(191,255,0,0.6)' },
+  chipActive: { backgroundColor: 'rgba(184,233,38,0.14)', borderColor: 'rgba(184,233,38,0.6)' },
   chipLabel: { color: Colors.textSecondary, fontSize: Typography.sm + 1, fontFamily: Fonts.semibold },
   chipLabelActive: { color: '#FFFFFF' },
   chipCheck: { color: Colors.primary, fontSize: Typography.sm + 1 },
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.glass, borderWidth: 1, borderColor: Colors.glassBorder,
     borderRadius: 20, paddingVertical: 16, paddingHorizontal: 18,
   },
-  teamPickerBtnActive: { borderColor: 'rgba(191,255,0,0.45)' },
+  teamPickerBtnActive: { borderColor: 'rgba(184,233,38,0.45)' },
   teamPickerPlaceholder: {
     color: '#55556A', fontSize: Typography.sm + 1, fontFamily: Fonts.medium,
   },
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center',
     marginHorizontal: 20, marginBottom: 12,
     backgroundColor: Colors.glass, borderWidth: 1,
-    borderColor: 'rgba(191,255,0,0.4)', borderRadius: 16,
+    borderColor: 'rgba(184,233,38,0.4)', borderRadius: 16,
     paddingHorizontal: 16,
   },
   searchInput: {

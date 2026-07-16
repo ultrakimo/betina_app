@@ -267,8 +267,8 @@ const styles = StyleSheet.create({
   },
   betinaSays: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(107,33,168,0.22)',
-    borderWidth: 1, borderColor: 'rgba(107,33,168,0.45)',
+    backgroundColor: 'rgba(139,92,246,0.22)',
+    borderWidth: 1, borderColor: 'rgba(139,92,246,0.45)',
     borderRadius: 20, borderTopLeftRadius: 6,
     paddingVertical: 13, paddingHorizontal: 16,
   },

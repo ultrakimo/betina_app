@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     borderRadius: 999, backgroundColor: Colors.glass,
     borderWidth: 1, borderColor: Colors.glassBorder,
   },
-  tabActive: { backgroundColor: 'rgba(191,255,0,0.14)', borderColor: 'rgba(191,255,0,0.6)' },
+  tabActive: { backgroundColor: 'rgba(184,233,38,0.14)', borderColor: 'rgba(184,233,38,0.6)' },
   tabLabel: { color: Colors.textSecondary, fontSize: Typography.sm, fontFamily: Fonts.semibold },
   tabLabelActive: { color: '#FFFFFF' },
   matchCard: { gap: 12, padding: 16 },
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   imagePlaceholderEmoji: { fontSize: 40 },
   featuredBadge: {
     position: 'absolute', top: 12, left: 12,
-    backgroundColor: 'rgba(191,255,0,0.9)', borderRadius: 999,
+    backgroundColor: 'rgba(184,233,38,0.9)', borderRadius: 999,
     paddingHorizontal: 10, paddingVertical: 4,
   },
   featuredBadgeText: { color: '#000', fontSize: Typography.xs - 1, fontFamily: Fonts.bold, letterSpacing: 0.8 },

@@ -125,9 +125,9 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   tabFocused: {
-    backgroundColor: 'rgba(191,255,0,0.1)',
+    backgroundColor: 'rgba(184,233,38,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(191,255,0,0.25)',
+    borderColor: 'rgba(184,233,38,0.25)',
   },
   tabEmoji: { fontSize: 18 },
   tabLabel: { color: '#888899', fontSize: 9, fontWeight: '600', letterSpacing: 0.3 },

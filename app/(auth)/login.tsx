@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   dialCaret: { color: '#55556A', fontSize: 11 },
   inputWrap: {
     flex: 1, backgroundColor: Colors.glass, borderWidth: 1,
-    borderColor: 'rgba(191,255,0,0.45)', borderRadius: 20, paddingHorizontal: 18,
+    borderColor: 'rgba(184,233,38,0.45)', borderRadius: 20, paddingHorizontal: 18,
   },
   input: {
     color: '#FFFFFF', fontSize: Typography.md - 1,
@@ -222,6 +222,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center',
     gap: Spacing.md, paddingVertical: 14, paddingHorizontal: 24,
   },
-  dialRowActive: { backgroundColor: 'rgba(191,255,0,0.08)' },
+  dialRowActive: { backgroundColor: 'rgba(184,233,38,0.08)' },
   dialCountry: { flex: 1, color: '#FFFFFF', fontSize: Typography.base - 1, fontFamily: Fonts.medium },
 });

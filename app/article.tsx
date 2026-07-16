@@ -181,7 +181,7 @@ export default function ArticleScreen() {
                     style={styles.pullQuoteWrap}
                   >
                     <LinearGradient
-                      colors={['rgba(191,255,0,0.06)', 'rgba(120,80,255,0.06)']}
+                      colors={['rgba(184,233,38,0.06)', 'rgba(120,80,255,0.06)']}
                       style={styles.pullQuote}
                     >
                       <View style={styles.pullQuoteBar} />
@@ -205,7 +205,7 @@ export default function ArticleScreen() {
             {/* ── BETINA CTA ── */}
             <Animated.View entering={FadeInDown.delay(500).duration(400)} style={styles.ctaWrap}>
               <LinearGradient
-                colors={['rgba(191,255,0,0.1)', 'rgba(120,80,255,0.12)']}
+                colors={['rgba(184,233,38,0.1)', 'rgba(120,80,255,0.12)']}
                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
                 style={styles.ctaCard}
               >
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   ctaCard: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     borderRadius: 16, padding: 16,
-    borderWidth: 1, borderColor: 'rgba(191,255,0,0.2)',
+    borderWidth: 1, borderColor: 'rgba(184,233,38,0.2)',
   },
   ctaLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
   ctaEmoji: { fontSize: 28 },

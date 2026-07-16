@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   caret: { color: '#55556A', fontSize: 12 },
   inputWrap: {
     backgroundColor: Colors.glass, borderWidth: 1,
-    borderColor: 'rgba(191,255,0,0.45)', borderRadius: 20, paddingHorizontal: 18,
+    borderColor: 'rgba(184,233,38,0.45)', borderRadius: 20, paddingHorizontal: 18,
   },
   input: {
     color: '#FFFFFF', fontSize: Typography.md - 1,
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center',
     gap: Spacing.md, paddingVertical: 14, paddingHorizontal: 24,
   },
-  modalItemActive: { backgroundColor: 'rgba(191,255,0,0.08)' },
+  modalItemActive: { backgroundColor: 'rgba(184,233,38,0.08)' },
   modalFlag: { fontSize: 22 },
   modalCountryName: {
     flex: 1, color: '#FFFFFF',

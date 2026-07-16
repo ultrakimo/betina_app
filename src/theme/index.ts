@@ -2,36 +2,36 @@
 // SINGLE SOURCE OF TRUTH — import everything from here, never hardcode values
 
 export const Colors = {
-  // Backgrounds
-  background: '#0A0A0F',
-  surface: '#12121A',
-  card: '#1A1A2E',
-  cardElevated: '#1F1F35',
+  // Backgrounds — deep purple-tinted black (matches the BETina landing page)
+  background: '#0D0B11',
+  surface: '#14111A',
+  card: '#16121D',
+  cardElevated: '#1F1A29',
 
   // Brand
-  primary: '#BFFF00',      // Neon Grün — CTAs, Live, aktive Elemente
-  primaryDim: '#8FBF00',   // Gedämpftes Grün für Hover/Pressed
-  accent: '#6B21A8',       // Deep Purple — Akzente, Glows
-  accentLight: '#9333EA',  // Helleres Lila
+  primary: '#B8E926',      // Lime — CTAs, Live, aktive Elemente
+  primaryDim: '#9BC21E',   // Gedämpftes Grün für Hover/Pressed
+  accent: '#8B5CF6',       // Violett — Akzente, Glows
+  accentLight: '#A78BFA',  // Helleres Violett
   gold: '#FFD700',         // VIP, Premium
   goldDim: '#B8A000',      // Gedämpftes Gold
 
-  // Text
-  textPrimary: '#F0F0F0',
-  textSecondary: '#9999AA',
-  textMuted: '#555566',
+  // Text — light lavender-greys
+  textPrimary: '#F2F0F5',
+  textSecondary: '#A29AAF',
+  textMuted: '#6F6780',
 
   // Status
   success: '#00FF88',
-  danger: '#FF4444',
+  danger: '#FF7A7A',
   warning: '#FFAA00',
   info: '#00AAFF',
 
   // Overlays
   overlay: 'rgba(0,0,0,0.7)',
   overlayLight: 'rgba(0,0,0,0.4)',
-  glowGreen: 'rgba(191,255,0,0.15)',
-  glowPurple: 'rgba(107,33,168,0.2)',
+  glowGreen: 'rgba(184,233,38,0.15)',
+  glowPurple: 'rgba(139,92,246,0.2)',
   glowGold: 'rgba(255,215,0,0.2)',
 
   // Glassmorphism
@@ -39,12 +39,16 @@ export const Colors = {
   glassBorder: 'rgba(255,255,255,0.08)',
 } as const;
 
-// Font families (Space Grotesk, loaded in app/_layout.tsx)
+// Font families (Archivo, loaded in app/_layout.tsx). The landing-page
+// signature is Archivo Black italic uppercase for big titles / the wordmark.
 export const Fonts = {
-  regular: 'SpaceGrotesk_400Regular',
-  medium: 'SpaceGrotesk_500Medium',
-  semibold: 'SpaceGrotesk_600SemiBold',
-  bold: 'SpaceGrotesk_700Bold',
+  regular: 'Archivo_400Regular',
+  medium: 'Archivo_500Medium',
+  semibold: 'Archivo_600SemiBold',
+  bold: 'Archivo_700Bold',
+  extrabold: 'Archivo_800ExtraBold',
+  black: 'Archivo_900Black',
+  blackItalic: 'Archivo_900Black_Italic',
 } as const;
 
 export const Typography = {

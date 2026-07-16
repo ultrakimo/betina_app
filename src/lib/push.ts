@@ -35,7 +35,7 @@ export async function registerForPush(): Promise<string | null> {
       await Notifications.setNotificationChannelAsync('default', {
         name: 'BETina',
         importance: Notifications.AndroidImportance.HIGH,
-        lightColor: '#BFFF00',
+        lightColor: '#B8E926',
       });
     }
 

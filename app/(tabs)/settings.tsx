@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   profileCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: 14, paddingHorizontal: 16 },
   profileInitial: {
     width: 48, height: 48, borderRadius: 24,
-    backgroundColor: 'rgba(191,255,0,0.12)', borderWidth: 1, borderColor: 'rgba(191,255,0,0.35)',
+    backgroundColor: 'rgba(184,233,38,0.12)', borderWidth: 1, borderColor: 'rgba(184,233,38,0.35)',
     alignItems: 'center', justifyContent: 'center',
   },
   profileInitialLabel: { color: Colors.primary, fontSize: Typography.md + 1, fontFamily: Fonts.bold },
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   profileMeta: { color: Colors.textSecondary, fontSize: Typography.xs + 1, fontFamily: Fonts.medium },
   tierPill: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: 'rgba(191,255,0,0.1)', borderWidth: 1, borderColor: 'rgba(191,255,0,0.3)',
+    backgroundColor: 'rgba(184,233,38,0.1)', borderWidth: 1, borderColor: 'rgba(184,233,38,0.3)',
     borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12,
   },
   tierDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: Colors.primary },
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 14,
     paddingVertical: 14, paddingHorizontal: 12, borderRadius: 12, marginBottom: 4,
   },
-  langRowActive: { backgroundColor: 'rgba(191,255,0,0.08)', borderWidth: 1, borderColor: 'rgba(191,255,0,0.2)' },
+  langRowActive: { backgroundColor: 'rgba(184,233,38,0.08)', borderWidth: 1, borderColor: 'rgba(184,233,38,0.2)' },
   langFlag: { fontSize: 28 },
   langNative: { color: '#FFF', fontSize: Typography.base, fontFamily: Fonts.semibold },
   langNativeActive: { color: Colors.primary },

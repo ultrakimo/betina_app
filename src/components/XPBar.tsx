@@ -36,7 +36,7 @@ export default function XPBar({ progress, height = 8, delay = 300 }: Props) {
     <View style={[styles.track, { height, borderRadius: height }]}>
       <Animated.View style={[styles.fill, { height, borderRadius: height }, fillStyle]}>
         <LinearGradient
-          colors={['#8FCC00', Colors.primary]}
+          colors={['#8FB81E', Colors.primary]}
           start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}
           style={[StyleSheet.absoluteFill, { borderRadius: height }]}

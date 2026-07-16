@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   nodeDone: {
-    backgroundColor: 'rgba(191,255,0,0.15)',
+    backgroundColor: 'rgba(184,233,38,0.15)',
     borderColor: Colors.primary,
   },
   nodeCurrent: {
@@ -329,9 +329,9 @@ const styles = StyleSheet.create({
     color: Colors.gold,
   },
   currentPill: {
-    backgroundColor: 'rgba(191,255,0,0.14)',
+    backgroundColor: 'rgba(184,233,38,0.14)',
     borderWidth: 1,
-    borderColor: 'rgba(191,255,0,0.4)',
+    borderColor: 'rgba(184,233,38,0.4)',
     borderRadius: 999,
     paddingVertical: 3,
     paddingHorizontal: 9,
@@ -438,9 +438,9 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   sportChip: {
-    backgroundColor: 'rgba(191,255,0,0.1)',
+    backgroundColor: 'rgba(184,233,38,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(191,255,0,0.3)',
+    borderColor: 'rgba(184,233,38,0.3)',
     borderRadius: 999,
     paddingVertical: 7,
     paddingHorizontal: 13,

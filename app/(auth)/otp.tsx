@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   otpBoxActive: {
-    borderColor: 'rgba(191,255,0,0.55)',
+    borderColor: 'rgba(184,233,38,0.55)',
   },
   otpDigit: {
     color: '#FFFFFF',

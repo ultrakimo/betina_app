@@ -287,9 +287,9 @@ const styles = StyleSheet.create({
   title: { color: '#FFFFFF', fontSize: Typography.xl, fontFamily: Fonts.bold },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   newPill: {
-    backgroundColor: 'rgba(191,255,0,0.14)',
+    backgroundColor: 'rgba(184,233,38,0.14)',
     borderWidth: 1,
-    borderColor: 'rgba(191,255,0,0.4)',
+    borderColor: 'rgba(184,233,38,0.4)',
     borderRadius: 999,
     paddingVertical: 5,
     paddingHorizontal: 11,
@@ -313,8 +313,8 @@ const styles = StyleSheet.create({
   },
   card: { flexDirection: 'row', gap: Spacing.md, paddingVertical: 15, paddingHorizontal: 16 },
   purpleCard: {
-    backgroundColor: 'rgba(107,33,168,0.18)',
-    borderColor: 'rgba(107,33,168,0.4)',
+    backgroundColor: 'rgba(139,92,246,0.18)',
+    borderColor: 'rgba(139,92,246,0.4)',
   },
   iconBox: {
     width: 42,
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconBoxGold: { backgroundColor: 'rgba(255,215,0,0.15)', borderColor: 'rgba(255,215,0,0.35)' },
-  iconBoxGreen: { backgroundColor: 'rgba(191,255,0,0.1)', borderColor: 'rgba(191,255,0,0.3)' },
+  iconBoxGreen: { backgroundColor: 'rgba(184,233,38,0.1)', borderColor: 'rgba(184,233,38,0.3)' },
   iconEmoji: { fontSize: 20 },
   cardBody: { flex: 1, gap: 3 },
   cardTitleRow: {

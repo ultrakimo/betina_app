@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     fontSize: 44,
     fontFamily: Fonts.bold,
     textAlign: 'center',
-    textShadowColor: 'rgba(191,255,0,0.3)',
+    textShadowColor: 'rgba(184,233,38,0.3)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 40,
   },

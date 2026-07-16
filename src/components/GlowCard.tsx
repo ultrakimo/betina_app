@@ -10,9 +10,9 @@ type Props = ViewProps & {
 };
 
 const GRADIENTS: Record<Exclude<Variant, 'glass'>, { colors: [string, string]; border: string }> = {
-  purple: { colors: ['rgba(107,33,168,0.35)', 'rgba(255,255,255,0.04)'], border: 'rgba(107,33,168,0.5)' },
+  purple: { colors: ['rgba(139,92,246,0.35)', 'rgba(255,255,255,0.04)'], border: 'rgba(139,92,246,0.5)' },
   gold: { colors: ['rgba(255,215,0,0.14)', 'rgba(255,255,255,0.04)'], border: 'rgba(255,215,0,0.4)' },
-  green: { colors: ['rgba(191,255,0,0.12)', 'rgba(255,255,255,0.04)'], border: 'rgba(191,255,0,0.5)' },
+  green: { colors: ['rgba(184,233,38,0.12)', 'rgba(255,255,255,0.04)'], border: 'rgba(184,233,38,0.5)' },
 };
 
 /** Glassmorphism card — the base surface of every list row / panel in BETina. */

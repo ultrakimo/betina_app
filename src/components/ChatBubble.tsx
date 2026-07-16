@@ -46,18 +46,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.base,
   },
   assistant: {
-    backgroundColor: 'rgba(107,33,168,0.25)',
+    backgroundColor: 'rgba(139,92,246,0.25)',
     borderWidth: 1,
-    borderColor: 'rgba(107,33,168,0.45)',
+    borderColor: 'rgba(139,92,246,0.45)',
     borderBottomLeftRadius: 6,
     flexShrink: 1,
   },
   user: {
     alignSelf: 'flex-end',
     maxWidth: '78%',
-    backgroundColor: 'rgba(191,255,0,0.14)',
+    backgroundColor: 'rgba(184,233,38,0.14)',
     borderWidth: 1,
-    borderColor: 'rgba(191,255,0,0.35)',
+    borderColor: 'rgba(184,233,38,0.35)',
     borderBottomRightRadius: 6,
   },
   text: {

@@ -265,8 +265,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   formChipWin: {
-    backgroundColor: 'rgba(191,255,0,0.18)',
-    borderColor: 'rgba(191,255,0,0.45)',
+    backgroundColor: 'rgba(184,233,38,0.18)',
+    borderColor: 'rgba(184,233,38,0.45)',
   },
   formChipLoss: {
     backgroundColor: 'rgba(255,80,80,0.15)',
