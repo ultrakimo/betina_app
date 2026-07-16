@@ -235,9 +235,10 @@ const TRIGGERS: Trig[] = [
   { id: 'BT-044', cat: 'marketing', cap: { k: 'cooldownD', days: 7 },
     cond: (c) => !!c.p.active_bonus_name && wageringPct(c.p.wagering_done, c.p.wagering_requirement) >= 80,
     brief: (c) => `Almost there — only ${100 - wageringPct(c.p.wagering_done, c.p.wagering_requirement)}% wagering left to unlock their bonus.` },
-  { id: 'BT-042', cat: 'marketing', cap: { k: 'perDay' },
-    cond: (c) => c.p.active_bonus_name === null && c.p.total_deposits > 0,
-    brief: () => `A new bonus is available for them. Playful heads-up.` },
+  // BT-042 (generic "a new bonus is available") intentionally disabled: the CRM
+  // has no "offer available" signal, so it would fire for almost everyone with
+  // no active bonus and promise a bonus that may not exist. The bonus triggers
+  // below are all grounded in real data (expiry, cashback, wagering, free spins).
   { id: 'BT-046', cat: 'marketing', cap: { k: 'cooldownD', days: 7 },
     cond: (c) => c.p.loyalty_points > 0 && (c.p.loyalty_points % 100) < 10,
     brief: (c) => `Loyalty milestone: ${Math.round(c.p.loyalty_points)} points 🏅. Celebrate it.` },

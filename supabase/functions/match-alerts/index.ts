@@ -39,6 +39,7 @@ type Profile = {
   favourite_team_id: string | null;
   push_token: string | null;
   last_alerted_event_id: string | null;
+  notify_events: boolean | null;
 };
 
 // A finished match the player hasn't been told about → BETina's message.
@@ -78,7 +79,7 @@ Deno.serve(async () => {
 
   const { data: profiles } = await supabase
     .from('profiles')
-    .select('id, name, favourite_team, favourite_team_id, push_token, last_alerted_event_id')
+    .select('id, name, favourite_team, favourite_team_id, push_token, last_alerted_event_id, notify_events')
     .not('favourite_team_id', 'is', null)
     .not('push_token', 'is', null);
 
@@ -103,7 +104,8 @@ Deno.serve(async () => {
         title: msg.title,
         body: msg.body,
       });
-      if (p.push_token) await sendPush(p.push_token, `BETina · ${msg.title}`, msg.body);
+      // Respect the "Event reminders" toggle — no push when it's off.
+      if (p.push_token && p.notify_events !== false) await sendPush(p.push_token, `BETina · ${msg.title}`, msg.body);
       sent++;
     } catch (_e) {
       // one player failing shouldn't stop the batch

@@ -78,15 +78,19 @@ Deno.serve(async () => {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('push_token, phone_normalized, phone')
+        .select('push_token, phone_normalized, phone, notify_betina')
         .eq('id', rem.user_id)
         .maybeSingle();
 
-      if (profile?.push_token) {
-        await sendPush(profile.push_token, 'BETina 💬', rem.text);
-      } else {
-        const smsPhone = profile?.phone_normalized ?? profile?.phone ?? null;
-        if (smsPhone) await sendSms(smsPhone, `BETina 💬 ${rem.text}`);
+      // Respect the "BETina messages" toggle — no push/SMS when it's off
+      // (the in-app notification above is still recorded).
+      if (profile?.notify_betina !== false) {
+        if (profile?.push_token) {
+          await sendPush(profile.push_token, 'BETina 💬', rem.text);
+        } else {
+          const smsPhone = profile?.phone_normalized ?? profile?.phone ?? null;
+          if (smsPhone) await sendSms(smsPhone, `BETina 💬 ${rem.text}`);
+        }
       }
       sent++;
     } catch (_e) {
