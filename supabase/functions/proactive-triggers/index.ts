@@ -42,8 +42,10 @@ const LANG_NAMES: Record<string, string> = {
 type ProfileRow = {
   id: string; name: string | null; phone: string | null; phone_normalized: string | null;
   push_token: string | null; language: string | null; favourite_team_id: string | null;
-  created_at: string | null; notify_betina: boolean | null;
+  created_at: string | null; notify_betina: boolean | null; notify_events: boolean | null;
 };
+
+type Fixture = { date: string; time: string; home: string; away: string };
 
 // ── Frequency caps ────────────────────────────────────────────────────────────
 type Cap =
@@ -74,15 +76,32 @@ type Ctx = {
   p: CRMPlayer;
   pf: ProfileRow;
   now: Date;
-  playsToday: () => Promise<boolean>;
+  today: string;                                   // 'YYYY-MM-DD' (UTC)
+  nextFixture: () => Promise<Fixture | null>;      // favourite team's next match
 };
 type Trig = {
   id: string;
   cat: 'rg' | 'transactional' | 'marketing';
+  // Which settings toggle gates this trigger: 'events' → notify_events (⚽),
+  // otherwise notify_betina (💬). Defaults to 'betina'.
+  pref?: 'betina' | 'events';
   cap: Cap;
   cond: (c: Ctx) => boolean | Promise<boolean>;
-  brief: (c: Ctx) => string;
+  brief: (c: Ctx) => string | Promise<string>;
 };
+
+// Minutes until kickoff. TheSportsDB fixture times are UTC, so we parse
+// date+time as UTC; this fires the reminder ~2h before the real kickoff
+// regardless of the player's timezone.
+function minutesToKickoff(fx: Fixture, now: Date): number {
+  const t = Date.parse(`${fx.date}T${(fx.time || '00:00:00')}Z`);
+  if (Number.isNaN(t)) return Number.POSITIVE_INFINITY;
+  return (t - now.getTime()) / 60000;
+}
+function opponent(fx: Fixture, favTeam: string | null): string {
+  const home = fx.home || '';
+  return favTeam && home.toLowerCase().includes(favTeam.toLowerCase()) ? (fx.away || '') : home;
+}
 
 function mmdd(d: Date) { return [d.getUTCMonth(), d.getUTCDate()]; }
 function sameDayOfYear(iso: string | null, now: Date): boolean {
@@ -206,9 +225,31 @@ const TRIGGERS: Trig[] = [
     cond: (c) => c.now.getUTCDay() === 5 && c.now.getUTCHours() >= 17,
     brief: () => `It's Friday evening — the weekend is here 🏆. Tease the weekend's big matches.` },
   // Sports
-  { id: 'BT-023', cat: 'marketing', cap: { k: 'perDay' },
-    cond: async (c) => !!c.pf.favourite_team_id && c.p.inactivity_days < 14 && await c.playsToday(),
-    brief: (c) => `Their favourite team ${c.p.fav_team ?? ''} plays TODAY 🏟️. Hype them up for match day.` },
+  { id: 'BT-023B', cat: 'marketing', pref: 'events', cap: { k: 'perDay' },
+    cond: async (c) => {
+      if (!c.pf.favourite_team_id) return false;
+      const fx = await c.nextFixture();
+      if (!fx) return false;
+      const m = minutesToKickoff(fx, c.now);
+      return m >= 90 && m <= 150; // ~2h before kickoff (15-min cron hits this window)
+    },
+    brief: async (c) => {
+      const fx = await c.nextFixture();
+      const opp = fx ? opponent(fx, c.p.fav_team) : '';
+      const kt = fx ? (fx.time || '').slice(0, 5) : '';
+      return `${c.p.fav_team ?? 'Their team'} kicks off in about 2 hours${kt ? ` (${kt})` : ''}${opp ? ` vs ${opp}` : ''}. Give them a short, excited heads-up so they don't miss it.`;
+    } },
+  { id: 'BT-023', cat: 'marketing', pref: 'events', cap: { k: 'perDay' },
+    cond: async (c) => {
+      if (!c.pf.favourite_team_id) return false;
+      const fx = await c.nextFixture();
+      return !!fx && fx.date === c.today;
+    },
+    brief: async (c) => {
+      const fx = await c.nextFixture();
+      const opp = fx ? opponent(fx, c.p.fav_team) : '';
+      return `Their favourite team ${c.p.fav_team ?? ''} plays TODAY 🏟️${opp ? ` vs ${opp}` : ''}. Hype them up for match day.`;
+    } },
   { id: 'BT-031', cat: 'marketing', cap: { k: 'perWeek' },
     cond: (c) => !!c.p.fav_team && c.p.last_bet_result !== 'win' && c.p.inactivity_days < 7,
     brief: (c) => `${c.p.fav_team} won recently but the player had no bet on it. Light, playful "you missed out" nudge — no pressure.` },
@@ -354,21 +395,24 @@ Deno.serve(async () => {
 
   const { data: users } = await supabase
     .from('profiles')
-    .select('id, name, phone, phone_normalized, push_token, language, favourite_team_id, created_at, notify_betina')
+    .select('id, name, phone, phone_normalized, push_token, language, favourite_team_id, created_at, notify_betina, notify_events')
     .or('push_token.not.is.null,phone.not.is.null'); // push users OR users with a phone (SMS fallback)
 
   let sent = 0;
 
   for (const pf of (users ?? []) as ProfileRow[]) {
     try {
-      if (pf.notify_betina === false) continue;                 // opted out of BETina pings
+      // Opted out of everything → skip entirely. Per-trigger gating (by pref)
+      // happens below, so a user with only one category off still runs.
+      if (pf.notify_betina === false && pf.notify_events === false) continue;
       const phone = pf.phone_normalized || normalizePhone(pf.phone ?? '');
       if (!phone || phone === '+') continue;
 
       const player = await getPlayerByPhone(phone);
 
-      // No CRM match → app-only user: only the one-time welcome (BT-001).
+      // No CRM match → app-only user: only the one-time welcome (BT-001, a 💬 msg).
       if (!player) {
+        if (pf.notify_betina === false) continue;
         const createdDays = daysSince(pf.created_at);
         if (createdDays >= 2) continue;
         const { data: prior } = await supabase
@@ -394,29 +438,32 @@ Deno.serve(async () => {
       const marketingOk = countWithin(mktTimes, nowMs, 1) < MARKETING_MAX_PER_DAY
         && countWithin(mktTimes, nowMs, 7) < MARKETING_MAX_PER_WEEK;
 
-      // Lazy, cached fixture check for the favourite team.
-      let fxLoaded = false, playsTodayCache = false;
-      const playsToday = async () => {
-        if (fxLoaded) return playsTodayCache;
+      // Lazy, cached lookup of the favourite team's next fixture.
+      let fxLoaded = false, fxCache: Fixture | null = null;
+      const nextFixture = async (): Promise<Fixture | null> => {
+        if (fxLoaded) return fxCache;
         fxLoaded = true;
-        if (!pf.favourite_team_id) return false;
+        if (!pf.favourite_team_id) return null;
         try {
           const r = await fetch(`${SPORTS_API}/api/sports/team/${pf.favourite_team_id}/next`);
           const d = await r.json();
-          playsTodayCache = (d.events ?? [])[0]?.date === today;
-        } catch { playsTodayCache = false; }
-        return playsTodayCache;
+          fxCache = (d.events ?? [])[0] ?? null;
+        } catch { fxCache = null; }
+        return fxCache;
       };
 
-      const ctx: Ctx = { p: player, pf, now, playsToday };
+      const ctx: Ctx = { p: player, pf, now, today, nextFixture };
 
       for (const trig of TRIGGERS) {
+        // Settings toggle for this trigger's category (⚽ events vs 💬 betina).
+        const prefOff = trig.pref === 'events' ? pf.notify_events === false : pf.notify_betina === false;
+        if (prefOff) continue;
         if (trig.cat === 'marketing' && player.risk_flag) continue;    // RG pause
         if (trig.cat === 'marketing' && !marketingOk) continue;        // global cap
         if (!passesCap(trig.cap, timesFor(trig.id), nowMs)) continue;  // per-trigger cap
         if (!(await trig.cond(ctx))) continue;
 
-        const body = await generateMessage(player.preferred_language ?? pf.language ?? 'en', pf.name ?? player.username ?? '', trig.brief(ctx));
+        const body = await generateMessage(player.preferred_language ?? pf.language ?? 'en', pf.name ?? player.username ?? '', await trig.brief(ctx));
         if (!body) continue;
 
         const ch2 = await deliver(pf, phone, body);
