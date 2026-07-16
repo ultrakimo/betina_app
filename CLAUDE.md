@@ -27,17 +27,18 @@ Kein echtes Geld wird in der App bewegt. Bets laufen auf der GeniusBet Website.
 Alle Farben, Spacing, Typo, Shadows aus theme.ts importieren.
 **NIEMALS** hardcoded Farbwerte im Code.
 
-## Farbpalette
-- Neon Grün (Primary): #BFFF00
-- Deep Purple (Accent): #6B21A8
+## Farbpalette (an Landing-Page angeglichen 2026-07-16)
+- Lime (Primary): #B8E926
+- Violett (Accent): #8B5CF6
 - Gold (VIP/Win): #FFD700
-- Near-Black (Background): #0A0A0F
-- Dark Surface: #12121A
-- Card Surface: #1A1A2E
-- Text Primary: #F0F0F0
-- Text Secondary: #9999AA
-- Danger/Loss: #FF4444
+- Near-Black (Background): #0D0B11
+- Dark Surface: #14111A
+- Card Surface: #16121D
+- Text Primary: #F2F0F5
+- Text Secondary: #A29AAF
+- Danger/Loss: #FF7A7A
 - Success/Win: #00FF88
+- **Font:** Archivo (Google), Signature = Black italic uppercase für Wordmark/Headlines
 
 ## BETinas Persönlichkeit (für Chat-Implementierung)
 - Friendly, energetic, ein bisschen frech, immer positiv
