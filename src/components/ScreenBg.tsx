@@ -45,8 +45,8 @@ function Orb({
     >
       <LinearGradient
         colors={[color, 'rgba(13,11,17,0)']}
-        locations={[0, 0.72]}
-        start={{ x: 0.5, y: 0.35 }}
+        locations={[0, 0.6]}
+        start={{ x: 0.5, y: 0.3 }}
         end={{ x: 0.5, y: 1 }}
         style={[StyleSheet.absoluteFill, { borderRadius: size / 2 }]}
       />
@@ -70,9 +70,10 @@ export default function ScreenBg({
   return (
     <View style={[styles.root, style]} {...rest}>
       {orbs && (
-        <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-          <Orb color="rgba(139,92,246,0.22)" size={520} top={-160} left={-150} duration={7000} delay={0} />
-          <Orb color="rgba(184,233,38,0.10)" size={560} top={260} right={-200} duration={9000} delay={800} />
+        <View pointerEvents="none" style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]}>
+          {/* Centres sit off-screen so only a soft ambient bleed shows (no hard circles). */}
+          <Orb color="rgba(139,92,246,0.16)" size={560} top={-320} left={-240} duration={7000} delay={0} />
+          <Orb color="rgba(184,233,38,0.07)" size={600} top={280} right={-320} duration={9000} delay={800} />
         </View>
       )}
 
@@ -107,6 +108,9 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: Colors.background,
+    // Clip the ambient orbs to the screen so nothing bleeds past the edge and
+    // triggers horizontal scroll (which flashed a white margin on iOS).
+    overflow: 'hidden',
   },
   glowWrap: {
     position: 'absolute',
