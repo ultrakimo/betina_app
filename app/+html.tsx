@@ -1,57 +1,44 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import type { PropsWithChildren } from 'react';
 
-// Inject Archivo font directly into the HTML head for reliable web loading.
-// The font files are bundled at the known hashed paths below.
+// Inject Archivo font into the HTML head for reliable web loading. Served from
+// Google's CDN (always available, independent of the static export's asset
+// hashing) under the exact family names react-native-web references.
 const FONT_CSS = `
   @font-face {
     font-family: 'Archivo_400Regular';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url('/assets/node_modules/@expo-google-fonts/archivo/400Regular/Archivo_400Regular.2a090e6093b26aa1cc35e899393ca6ad.ttf') format('truetype');
+    font-style: normal; font-weight: 400; font-display: swap;
+    src: url('https://fonts.gstatic.com/s/archivo/v25/k3k6o8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNDNp8A.ttf') format('truetype');
   }
   @font-face {
     font-family: 'Archivo_500Medium';
-    font-style: normal;
-    font-weight: 500;
-    font-display: swap;
-    src: url('/assets/node_modules/@expo-google-fonts/archivo/500Medium/Archivo_500Medium.3bd73ab34a70fb017c3e139e1c4057ae.ttf') format('truetype');
+    font-style: normal; font-weight: 500; font-display: swap;
+    src: url('https://fonts.gstatic.com/s/archivo/v25/k3k6o8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTBjNp8A.ttf') format('truetype');
   }
   @font-face {
     font-family: 'Archivo_600SemiBold';
-    font-style: normal;
-    font-weight: 600;
-    font-display: swap;
-    src: url('/assets/node_modules/@expo-google-fonts/archivo/600SemiBold/Archivo_600SemiBold.68850ad2114e2b7fb5edc12aa4bdda68.ttf') format('truetype');
+    font-style: normal; font-weight: 600; font-display: swap;
+    src: url('https://fonts.gstatic.com/s/archivo/v25/k3k6o8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTT6jRp8A.ttf') format('truetype');
   }
   @font-face {
     font-family: 'Archivo_700Bold';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url('/assets/node_modules/@expo-google-fonts/archivo/700Bold/Archivo_700Bold.05670a2716518402b517d63a9e8d3413.ttf') format('truetype');
+    font-style: normal; font-weight: 700; font-display: swap;
+    src: url('https://fonts.gstatic.com/s/archivo/v25/k3k6o8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTT0zRp8A.ttf') format('truetype');
   }
   @font-face {
     font-family: 'Archivo_800ExtraBold';
-    font-style: normal;
-    font-weight: 800;
-    font-display: swap;
-    src: url('/assets/node_modules/@expo-google-fonts/archivo/800ExtraBold/Archivo_800ExtraBold.2a3f365320f15aeaa2b006ad720e5a40.ttf') format('truetype');
+    font-style: normal; font-weight: 800; font-display: swap;
+    src: url('https://fonts.gstatic.com/s/archivo/v25/k3k6o8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTtDRp8A.ttf') format('truetype');
   }
   @font-face {
     font-family: 'Archivo_900Black';
-    font-style: normal;
-    font-weight: 900;
-    font-display: swap;
-    src: url('/assets/node_modules/@expo-google-fonts/archivo/900Black/Archivo_900Black.0631e43c32c2930ef466fbf6a053844d.ttf') format('truetype');
+    font-style: normal; font-weight: 900; font-display: swap;
+    src: url('https://fonts.gstatic.com/s/archivo/v25/k3k6o8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTnTRp8A.ttf') format('truetype');
   }
   @font-face {
     font-family: 'Archivo_900Black_Italic';
-    font-style: italic;
-    font-weight: 900;
-    font-display: swap;
-    src: url('/assets/node_modules/@expo-google-fonts/archivo/900Black_Italic/Archivo_900Black_Italic.88122409da770918a28e7da8b751f699.ttf') format('truetype');
+    font-style: italic; font-weight: 900; font-display: swap;
+    src: url('https://fonts.gstatic.com/s/archivo/v25/k3k8o8UDI-1M0wlSfdzyIEkpwTM29hr-8mTYIRyOSVz60_PG_HAotBds.ttf') format('truetype');
   }
 `;
 

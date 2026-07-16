@@ -18,8 +18,10 @@ import { Colors } from '../src/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
-// Inject Archivo fonts via Google Fonts CDN on web so they're available
-// immediately — without relying on expo-font's async CSS injection.
+// Belt-and-suspenders web font loading: app/+html.tsx injects these @font-face
+// into <head> for the static export (before paint); this runtime injection
+// covers the dev server (where +html.tsx isn't applied). Same Google CDN URLs,
+// so the browser de-dupes. expo-font's own web injection is disabled below.
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
   const id = 'betina-google-fonts';
   if (!document.getElementById(id)) {
@@ -34,20 +36,27 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       @font-face { font-family: 'Archivo_900Black'; font-style: normal; font-weight: 900; font-display: swap; src: url('https://fonts.gstatic.com/s/archivo/v25/k3k6o8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTnTRp8A.ttf') format('truetype'); }
       @font-face { font-family: 'Archivo_900Black_Italic'; font-style: italic; font-weight: 900; font-display: swap; src: url('https://fonts.gstatic.com/s/archivo/v25/k3k8o8UDI-1M0wlSfdzyIEkpwTM29hr-8mTYIRyOSVz60_PG_HAotBds.ttf') format('truetype'); }
     `;
-    document.head.insertBefore(style, document.head.firstChild);
+    document.head.appendChild(style);
   }
 }
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
-    Archivo_400Regular,
-    Archivo_500Medium,
-    Archivo_600SemiBold,
-    Archivo_700Bold,
-    Archivo_800ExtraBold,
-    Archivo_900Black,
-    Archivo_900Black_Italic,
-  });
+  // On web the fonts are provided by the @font-face in app/+html.tsx (Google
+  // CDN). Skip expo-font's injection there so it can't add a competing
+  // @font-face pointing at export assets that 404 on the deployed site.
+  const [fontsLoaded] = useFonts(
+    Platform.OS === 'web'
+      ? {}
+      : {
+          Archivo_400Regular,
+          Archivo_500Medium,
+          Archivo_600SemiBold,
+          Archivo_700Bold,
+          Archivo_800ExtraBold,
+          Archivo_900Black,
+          Archivo_900Black_Italic,
+        },
+  );
 
   useEffect(() => {
     if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
