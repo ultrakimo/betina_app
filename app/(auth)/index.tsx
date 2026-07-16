@@ -97,12 +97,17 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   title: {
-    color: '#FFFFFF',
-    fontSize: 34,
-    fontFamily: Fonts.bold,
+    color: Colors.primary,
+    fontSize: 42,
+    fontFamily: Fonts.blackItalic,
+    letterSpacing: -1,
+    textShadowColor: 'rgba(184,233,38,0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 22,
   },
   titleAccent: {
-    color: Colors.primary,
+    color: '#FFFFFF',
+    textShadowColor: 'transparent',
   },
   subtitle: {
     color: Colors.textSecondary,

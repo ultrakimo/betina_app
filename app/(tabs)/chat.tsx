@@ -317,12 +317,17 @@ const styles = StyleSheet.create({
     gap: 1,
   },
   headerName: {
-    color: '#FFFFFF',
-    fontSize: Typography.md,
-    fontFamily: Fonts.bold,
+    color: Colors.primary,
+    fontSize: Typography.md + 2,
+    fontFamily: Fonts.blackItalic,
+    letterSpacing: -0.5,
+    textShadowColor: 'rgba(184,233,38,0.45)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 16,
   },
   headerNameAccent: {
-    color: Colors.primary,
+    color: '#FFFFFF',
+    textShadowColor: 'transparent',
   },
   headerStatus: {
     color: Colors.primary,
