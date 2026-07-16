@@ -47,8 +47,8 @@ export default function ArticleScreen() {
   const { t } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { url, title: paramTitle, pubDate } = useLocalSearchParams<{
-    url: string; title?: string; pubDate?: string;
+  const { url, title: paramTitle, pubDate, image: paramImage } = useLocalSearchParams<{
+    url: string; title?: string; pubDate?: string; image?: string;
   }>();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
@@ -111,8 +111,8 @@ export default function ArticleScreen() {
 
             {/* ── HERO ── */}
             <View style={styles.heroWrap}>
-              {article.image ? (
-                <Image source={{ uri: article.image }} style={styles.heroImage} resizeMode="cover" />
+              {(article.image || paramImage) ? (
+                <Image source={{ uri: article.image || paramImage }} style={styles.heroImage} resizeMode="cover" />
               ) : (
                 <View style={[styles.heroImage, styles.heroFallback]}>
                   <Text style={{ fontSize: 72 }}>📰</Text>

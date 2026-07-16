@@ -229,7 +229,7 @@ export default function Live() {
             <>
               {/* First item: featured large card */}
               {news[0] && (
-                <Pressable onPress={() => news[0].link && router.push({ pathname: '/article', params: { url: news[0].link, title: news[0].title, pubDate: news[0].pubDate } })}>
+                <Pressable onPress={() => news[0].link && router.push({ pathname: '/article', params: { url: news[0].link, title: news[0].title, pubDate: news[0].pubDate, image: news[0].image ?? '' } })}>
                   <GlowCard style={styles.featuredCard}>
                     {news[0].image ? (
                       <Image source={{ uri: news[0].image }} style={styles.featuredImage} resizeMode="cover" />
@@ -250,7 +250,7 @@ export default function Live() {
               )}
               {/* Rest: compact horizontal image + text */}
               {news.slice(1).map((item, idx) => (
-                <Pressable key={idx + 1} onPress={() => item.link && router.push({ pathname: '/article', params: { url: item.link, title: item.title, pubDate: item.pubDate } })}>
+                <Pressable key={idx + 1} onPress={() => item.link && router.push({ pathname: '/article', params: { url: item.link, title: item.title, pubDate: item.pubDate, image: item.image ?? '' } })}>
                   <GlowCard style={styles.newsCard}>
                     {item.image && (
                       <Image source={{ uri: item.image }} style={styles.newsThumb} resizeMode="cover" />
