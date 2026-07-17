@@ -134,7 +134,7 @@ export const LEGAL_DOCS: Record<LegalDocKey, LegalDoc> = {
       {
         heading: 'Responsible gaming',
         body:
-          'BETina is entertainment, not gambling. If you or someone you know needs support, help is available at begambleaware.org.',
+          'BETina is entertainment, not gambling. If you or someone you know needs support, see the Responsible Gaming page in Settings or reach our team in the app.',
       },
     ],
   },

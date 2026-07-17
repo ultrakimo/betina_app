@@ -3,6 +3,7 @@
 
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as WebBrowser from 'expo-web-browser';
 import BackButton from '../src/components/BackButton';
@@ -14,7 +15,6 @@ import SectionLabel from '../src/components/SectionLabel';
 import { Colors, Fonts, Spacing, Typography } from '../src/theme';
 
 const GENIUSBET_RG_URL = 'https://www.geniusbet.com/responsible-gaming';
-const BEGAMBLEAWARE_URL = 'https://www.begambleaware.org';
 
 const PRINCIPLES = [
   'Betting is entertainment — never a way to make money.',
@@ -41,6 +41,7 @@ const SIGNS = [
 
 export default function ResponsibleGaming() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   return (
     <ScreenBg glowTop={0.12} glowSize={440}>
@@ -127,16 +128,16 @@ export default function ResponsibleGaming() {
         {/* Help */}
         <View style={styles.section}>
           <SectionLabel>NEED TO TALK?</SectionLabel>
-          <Pressable onPress={() => WebBrowser.openBrowserAsync(BEGAMBLEAWARE_URL)}>
+          <Pressable onPress={() => router.push('/(tabs)/chat')}>
             <GlowCard style={styles.helpCard}>
               <Text style={styles.helpEmoji}>🤝</Text>
               <View style={styles.helpText}>
                 <Text style={styles.helpTitle}>You’re not alone</Text>
                 <Text style={styles.helpHint}>
-                  Free, confidential support is available at BeGambleAware.
+                  Talk to BETina any time, or reach our support team through the app.
                 </Text>
               </View>
-              <Text style={styles.helpArrow}>↗</Text>
+              <Text style={styles.helpArrow}>→</Text>
             </GlowCard>
           </Pressable>
         </View>

@@ -2,14 +2,11 @@ import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as WebBrowser from 'expo-web-browser';
 import BackButton from '../src/components/BackButton';
 import GlowCard from '../src/components/GlowCard';
 import ScreenBg from '../src/components/ScreenBg';
 import { LEGAL_DOCS, LegalDocKey } from '../src/lib/legal';
 import { Colors, Fonts, Spacing, Typography } from '../src/theme';
-
-const RESPONSIBLE_GAMING_URL = 'https://www.begambleaware.org';
 
 const DOCS: { key: LegalDocKey; emoji: string }[] = [
   { key: 'privacy', emoji: '🔒' },
@@ -52,11 +49,11 @@ export default function Legal() {
           ))}
         </GlowCard>
 
-        <Pressable onPress={() => WebBrowser.openBrowserAsync(RESPONSIBLE_GAMING_URL)}>
+        <Pressable onPress={() => router.push('/responsible-gaming')}>
           <GlowCard style={styles.rgCard}>
             <Text style={styles.rowEmoji}>🛡️</Text>
-            <Text style={styles.rowLabel}>Responsible gaming resources</Text>
-            <Text style={styles.external}>opens browser ↗</Text>
+            <Text style={styles.rowLabel}>Responsible gaming</Text>
+            <Text style={styles.chevron}>›</Text>
           </GlowCard>
         </Pressable>
       </ScrollView>
