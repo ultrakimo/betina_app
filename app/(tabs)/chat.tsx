@@ -437,12 +437,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: 999,
-    paddingVertical: 9,
-    paddingHorizontal: Spacing.base,
+    paddingVertical: 7,
+    paddingHorizontal: 13,
   },
   quickReplyLabel: {
     color: '#E8E8F0',
-    fontSize: Typography.sm,
+    fontSize: Typography.xs + 1,
     fontFamily: Fonts.semibold,
   },
   inputRow: {

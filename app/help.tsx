@@ -2,15 +2,12 @@ import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as WebBrowser from 'expo-web-browser';
 import BackButton from '../src/components/BackButton';
 import BETinaAvatar from '../src/components/BETinaAvatar';
 import GlowCard from '../src/components/GlowCard';
 import ScreenBg from '../src/components/ScreenBg';
 import SectionLabel from '../src/components/SectionLabel';
 import { Colors, Fonts, Spacing, Typography } from '../src/theme';
-
-const RESPONSIBLE_GAMING_URL = 'https://www.begambleaware.org';
 
 const FAQS = [
   {
@@ -98,15 +95,6 @@ export default function Help() {
         </View>
 
         <View style={styles.spacer} />
-
-        {/* responsible gaming */}
-        <Pressable onPress={() => WebBrowser.openBrowserAsync(RESPONSIBLE_GAMING_URL)}>
-          <GlowCard style={styles.rgCard}>
-            <Text style={styles.rgEmoji}>🛡️</Text>
-            <Text style={styles.rgLabel}>Responsible gaming resources</Text>
-            <Text style={styles.rgHint}>opens browser ↗</Text>
-          </GlowCard>
-        </Pressable>
       </ScrollView>
     </ScreenBg>
   );

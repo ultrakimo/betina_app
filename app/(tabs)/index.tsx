@@ -210,7 +210,7 @@ export default function Home() {
                   <View style={styles.featuredTeams}>
                     <Text style={styles.teamName} numberOfLines={1}>{fixtures[0].home}</Text>
                     <Text style={styles.vs}>vs</Text>
-                    <Text style={styles.teamName} numberOfLines={1}>{fixtures[0].away}</Text>
+                    <Text style={[styles.teamName, styles.teamNameRight]} numberOfLines={1}>{fixtures[0].away}</Text>
                   </View>
                 </GlowCard>
               </Pressable>
@@ -299,11 +299,12 @@ const styles = StyleSheet.create({
   featuredTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   featuredLeague: { color: Colors.primary, fontSize: Typography.xs, fontFamily: Fonts.bold, letterSpacing: 1.1 },
   featuredTime: { color: Colors.textSecondary, fontSize: Typography.xs + 1, fontFamily: Fonts.semibold },
-  featuredTeams: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  teamName: { color: '#FFFFFF', fontSize: Typography.base, fontFamily: Fonts.bold },
-  vs: { color: '#55556A', fontSize: Typography.sm, fontFamily: Fonts.bold },
-  eventCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: 18 },
-  eventInfo: { gap: 3 },
+  featuredTeams: { flexDirection: 'row', alignItems: 'center' },
+  teamName: { flex: 1, color: '#FFFFFF', fontSize: Typography.base, fontFamily: Fonts.bold },
+  teamNameRight: { textAlign: 'right' },
+  vs: { color: '#55556A', fontSize: Typography.sm, fontFamily: Fonts.bold, marginHorizontal: 10 },
+  eventCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: 18, gap: 10 },
+  eventInfo: { flex: 1, gap: 3 },
   eventLeague: { color: Colors.textSecondary, fontSize: Typography.xs, fontFamily: Fonts.semibold, letterSpacing: 0.7 },
   eventName: { color: '#FFFFFF', fontSize: Typography.sm + 1, fontFamily: Fonts.semibold },
   eventTime: { color: Colors.textSecondary, fontSize: Typography.xs + 1, fontFamily: Fonts.semibold },
