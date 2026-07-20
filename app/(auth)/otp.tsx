@@ -33,6 +33,7 @@ export default function Otp() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resendIn, setResendIn] = useState(24);
+  const [rememberDevice, setRememberDevice] = useState(true);
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
@@ -64,8 +65,8 @@ export default function Otp() {
         refresh_token: data.refresh_token,
       });
 
-      // Save device token for 30-day auto-login
-      if (data.device_token) {
+      // Save device token for 30-day auto-login (only if user opted in)
+      if (rememberDevice && data.device_token) {
         await SecureStore.setItemAsync('betina_device_token', data.device_token);
         await SecureStore.setItemAsync('betina_device_phone', phone ?? '');
       }
@@ -168,6 +169,18 @@ export default function Otp() {
               </Pressable>
             )}
           </View>
+
+          {/* Remember device checkbox */}
+          <Pressable
+            onPress={() => setRememberDevice((v) => !v)}
+            style={styles.rememberRow}
+            hitSlop={8}
+          >
+            <View style={[styles.checkbox, rememberDevice && styles.checkboxActive]}>
+              {rememberDevice && <Text style={styles.checkmark}>✓</Text>}
+            </View>
+            <Text style={styles.rememberLabel}>{t.otpRememberDevice}</Text>
+          </Pressable>
 
           <GlowButton
             label={t.otpVerify}
@@ -281,8 +294,40 @@ const styles = StyleSheet.create({
     fontSize: Typography.sm,
     fontFamily: Fonts.semibold,
   },
+  rememberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingTop: Spacing.xl,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: Colors.glassBorder,
+    backgroundColor: Colors.glass,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxActive: {
+    borderColor: Colors.primary,
+    backgroundColor: 'rgba(184,233,38,0.15)',
+  },
+  checkmark: {
+    color: Colors.primary,
+    fontSize: 13,
+    fontFamily: Fonts.bold,
+    lineHeight: 16,
+  },
+  rememberLabel: {
+    color: Colors.textSecondary,
+    fontSize: Typography.sm,
+    fontFamily: Fonts.medium,
+    flex: 1,
+  },
   cta: {
-    marginTop: 32,
+    marginTop: 20,
   },
   hintRow: {
     alignItems: 'flex-start',

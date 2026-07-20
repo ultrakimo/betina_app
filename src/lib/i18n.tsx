@@ -85,6 +85,7 @@ type Translations = {
   otpResendIn: string;
   otpErrWrong: string;
   otpHint: string;
+  otpRememberDevice: string;
   // Register extras
   registerSubtitle: string;
   registerSelectCountry: string;
@@ -264,6 +265,7 @@ const T: Record<LangCode, Translations> = {
     otpResendIn: 'Resend in',
     otpErrWrong: "That code didn't match — try again? 🔐",
     otpHint: "Almost there — one code and we're in. 🔐",
+    otpRememberDevice: 'Remember this device for 30 days',
     registerSubtitle: 'Just the essentials — BETina handles the rest.',
     registerSelectCountry: 'Select country',
     registerErrBirthday: 'Please enter your full birthday.',
@@ -414,6 +416,7 @@ const T: Record<LangCode, Translations> = {
     otpResendIn: 'Erneut senden in',
     otpErrWrong: 'Der Code hat nicht gepasst — nochmal versuchen? 🔐',
     otpHint: 'Fast geschafft — ein Code noch und wir sind drin. 🔐',
+    otpRememberDevice: 'Dieses Gerät 30 Tage merken',
     registerSubtitle: 'Nur das Nötigste — BETina erledigt den Rest.',
     registerSelectCountry: 'Land wählen',
     registerErrBirthday: 'Bitte gib dein vollständiges Geburtsdatum ein.',
@@ -564,6 +567,7 @@ const T: Record<LangCode, Translations> = {
     otpResendIn: 'Reenviar en',
     otpErrWrong: 'Ese código no coincide — ¿probamos otra vez? 🔐',
     otpHint: 'Casi listo — un código y entramos. 🔐',
+    otpRememberDevice: 'Recordar este dispositivo por 30 días',
     registerSubtitle: 'Solo lo esencial — BETina se encarga del resto.',
     registerSelectCountry: 'Selecciona el país',
     registerErrBirthday: 'Ingresa tu fecha de nacimiento completa.',
@@ -714,6 +718,7 @@ const T: Record<LangCode, Translations> = {
     otpResendIn: 'Reenviar em',
     otpErrWrong: 'Esse código não bateu — tentar de novo? 🔐',
     otpHint: 'Quase lá — um código e estamos dentro. 🔐',
+    otpRememberDevice: 'Lembrar este dispositivo por 30 dias',
     registerSubtitle: 'Só o essencial — a BETina cuida do resto.',
     registerSelectCountry: 'Selecione o país',
     registerErrBirthday: 'Digite sua data de nascimento completa.',
@@ -864,6 +869,7 @@ const T: Record<LangCode, Translations> = {
     otpResendIn: 'Renvoyer dans',
     otpErrWrong: 'Ce code ne correspond pas — on réessaie ? 🔐',
     otpHint: 'Presque fini — un code et on y est. 🔐',
+    otpRememberDevice: 'Mémoriser cet appareil pendant 30 jours',
     registerSubtitle: "Juste l'essentiel — BETina s'occupe du reste.",
     registerSelectCountry: 'Choisir le pays',
     registerErrBirthday: 'Entrez votre date de naissance complète.',
@@ -1014,6 +1020,7 @@ const T: Record<LangCode, Translations> = {
     otpResendIn: 'Reinvia tra',
     otpErrWrong: 'Quel codice non corrisponde — riproviamo? 🔐',
     otpHint: 'Ci siamo quasi — un codice e siamo dentro. 🔐',
+    otpRememberDevice: 'Ricorda questo dispositivo per 30 giorni',
     registerSubtitle: "Solo l'essenziale — al resto pensa BETina.",
     registerSelectCountry: 'Seleziona il paese',
     registerErrBirthday: 'Inserisci la tua data di nascita completa.',
@@ -1164,6 +1171,7 @@ const T: Record<LangCode, Translations> = {
     otpResendIn: 'Retrimite în',
     otpErrWrong: 'Codul nu se potrivește — mai încercăm? 🔐',
     otpHint: 'Aproape gata — un cod și am intrat. 🔐',
+    otpRememberDevice: 'Ține minte acest dispozitiv 30 de zile',
     registerSubtitle: 'Doar esențialul — BETina se ocupă de rest.',
     registerSelectCountry: 'Alege țara',
     registerErrBirthday: 'Introdu data completă de naștere.',
