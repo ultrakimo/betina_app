@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as SecureStore from 'expo-secure-store';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import GlowButton from '../../src/components/GlowButton';
 import GlowCard from '../../src/components/GlowCard';
@@ -104,6 +105,10 @@ export default function Settings() {
   };
 
   const logout = async () => {
+    // Clear device token
+    await SecureStore.deleteItemAsync('betina_device_token');
+    await SecureStore.deleteItemAsync('betina_device_phone');
+    
     await supabase.auth.signOut();
     router.replace('/(auth)/login');
   };

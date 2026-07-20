@@ -11,6 +11,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
+import * as SecureStore from 'expo-secure-store';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import BackButton from '../../src/components/BackButton';
 import ChatBubble from '../../src/components/ChatBubble';
@@ -62,6 +63,13 @@ export default function Otp() {
         access_token: data.access_token,
         refresh_token: data.refresh_token,
       });
+
+      // Save device token for 30-day auto-login
+      if (data.device_token) {
+        await SecureStore.setItemAsync('betina_device_token', data.device_token);
+        await SecureStore.setItemAsync('betina_device_phone', phone ?? '');
+      }
+
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       // Check if profile exists — new user goes to register, existing to home
       const { data: profile } = await supabase
