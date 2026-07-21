@@ -16,10 +16,9 @@
 // Env: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { sendSms } from '../_shared/sms.ts';
 
-const EXPO_PUSH    = 'https://exp.host/--/api/v2/push/send';
-const SMSEAGLE_URL   = Deno.env.get('SMSEAGLE_URL') ?? '';
-const SMSEAGLE_TOKEN = Deno.env.get('SMSEAGLE_TOKEN') ?? '';
+const EXPO_PUSH = 'https://exp.host/--/api/v2/push/send';
 
 type Reminder = {
   id: string;
@@ -34,18 +33,6 @@ async function sendPush(token: string, title: string, body: string) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ to: token, title, body, sound: 'default' }),
   });
-}
-
-async function sendSms(phone: string, body: string) {
-  if (!SMSEAGLE_URL || !SMSEAGLE_TOKEN) return;
-  const text = body.length > 155 ? body.slice(0, 152) + '...' : body;
-  try {
-    await fetch(SMSEAGLE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SMSEAGLE_TOKEN}` },
-      body: JSON.stringify({ to: [phone], text }),
-    });
-  } catch (_) { /* non-fatal */ }
 }
 
 Deno.serve(async () => {

@@ -74,7 +74,7 @@ export default function RootLayout() {
           animation: 'fade',
         }}
       >
-        <Stack.Screen name="(auth)" options={{ animationEnabled: false }} />
+        <Stack.Screen name="(auth)" options={{ animation: 'none' }} />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="celebration" options={{ presentation: 'transparentModal', animation: 'fade' }} />
         <Stack.Screen name="article" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
